@@ -184,6 +184,7 @@ extern "C" {
 #define STATE_WARNING			1
 #define STATE_CRITICAL			2
 #define STATE_UNKNOWN			3       /* changed from -1 on 02/24/2001 */
+#define STATE_INFO			4       /* changed from -1 on 02/24/2001 */
 
 
 

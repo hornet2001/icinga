@@ -730,9 +730,11 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 	int host_problems_unhandled = 0;
 	int services_ok = 0;
 	int services_warning = 0;
+	int services_info = 0;
 	int services_unknown = 0;
 	int services_critical = 0;
 	int services_warning_unhandled = 0;
+	int services_info_unhandled = 0;
 	int services_unknown_unhandled = 0;
 	int services_critical_unhandled = 0;
 	int service_problems = 0;
@@ -793,6 +795,7 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 	case MACRO_TOTALHOSTSERVICES:
 	case MACRO_TOTALHOSTSERVICESOK:
 	case MACRO_TOTALHOSTSERVICESWARNING:
+	case MACRO_TOTALHOSTSERVICESINFO:
 	case MACRO_TOTALHOSTSERVICESUNKNOWN:
 	case MACRO_TOTALHOSTSERVICESCRITICAL:
 	case MACRO_HOSTPROBLEMID:
@@ -906,6 +909,7 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 	case MACRO_SERVICEACKCOMMENT:
 	case MACRO_LASTSERVICEOK:
 	case MACRO_LASTSERVICEWARNING:
+	case MACRO_LASTSERVICEINFO:
 	case MACRO_LASTSERVICEUNKNOWN:
 	case MACRO_LASTSERVICECRITICAL:
 	case MACRO_SERVICECHECKCOMMAND:
@@ -1184,9 +1188,11 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 	case MACRO_TOTALHOSTPROBLEMSUNHANDLED:
 	case MACRO_TOTALSERVICESOK:
 	case MACRO_TOTALSERVICESWARNING:
+	case MACRO_TOTALSERVICESINFO:
 	case MACRO_TOTALSERVICESCRITICAL:
 	case MACRO_TOTALSERVICESUNKNOWN:
 	case MACRO_TOTALSERVICESWARNINGUNHANDLED:
+	case MACRO_TOTALSERVICESINFOUNHANDLED:
 	case MACRO_TOTALSERVICESCRITICALUNHANDLED:
 	case MACRO_TOTALSERVICESUNKNOWNUNHANDLED:
 	case MACRO_TOTALSERVICEPROBLEMS:
@@ -1260,6 +1266,19 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 						if (problem == TRUE)
 							services_warning_unhandled++;
 						services_warning++;
+					 } else if (temp_service->current_state == STATE_INFO) {
+                                                temp_host = find_host(temp_service->host_name);
+                                                if (temp_host != NULL && (temp_host->current_state == HOST_DOWN || temp_host->current_state == HOST_UNREACHABLE))
+                                                        problem = FALSE;
+                                                if (temp_service->scheduled_downtime_depth > 0)
+                                                        problem = FALSE;
+                                                if (temp_service->problem_has_been_acknowledged == TRUE)
+                                                        problem = FALSE;
+                                                if (temp_service->checks_enabled == FALSE)
+                                                        problem = FALSE;
+                                                if (problem == TRUE)
+                                                        services_info_unhandled++;
+                                                services_info++;
 					} else if (temp_service->current_state == STATE_UNKNOWN) {
 						temp_host = find_host(temp_service->host_name);
 						if (temp_host != NULL && (temp_host->current_state == HOST_DOWN || temp_host->current_state == HOST_UNREACHABLE))
@@ -1290,8 +1309,8 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 				}
 			}
 
-			service_problems = services_warning + services_critical + services_unknown;
-			service_problems_unhandled = services_warning_unhandled + services_critical_unhandled + services_unknown_unhandled;
+			service_problems = services_warning + services_info + services_critical + services_unknown;
+			service_problems_unhandled = services_warning_unhandled + services_info_unhandled + services_critical_unhandled + services_unknown_unhandled;
 
 			/* these macros are time-intensive to compute, and will likely be used together, so save them all for future use */
 			for (x = MACRO_TOTALHOSTSUP; x <= MACRO_TOTALSERVICEPROBLEMSUNHANDLED; x++)
@@ -1305,9 +1324,11 @@ int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *ar
 			dummy = asprintf(&mac->x[MACRO_TOTALHOSTPROBLEMSUNHANDLED], "%d", host_problems_unhandled);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESOK], "%d", services_ok);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESWARNING], "%d", services_warning);
+			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESINFO], "%d", services_info);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESCRITICAL], "%d", services_critical);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESUNKNOWN], "%d", services_unknown);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESWARNINGUNHANDLED], "%d", services_warning_unhandled);
+			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESINFOUNHANDLED], "%d", services_info_unhandled);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESCRITICALUNHANDLED], "%d", services_critical_unhandled);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICESUNKNOWNUNHANDLED], "%d", services_unknown_unhandled);
 			dummy = asprintf(&mac->x[MACRO_TOTALSERVICEPROBLEMS], "%d", service_problems);
@@ -1669,6 +1690,7 @@ int grab_standard_host_macro_r(icinga_macros *mac, int macro_type, host *temp_ho
 	int total_host_services = 0;
 	int total_host_services_ok = 0;
 	int total_host_services_warning = 0;
+	int total_host_services_info = 0;
 	int total_host_services_unknown = 0;
 	int total_host_services_critical = 0;
 #endif
@@ -1848,6 +1870,7 @@ int grab_standard_host_macro_r(icinga_macros *mac, int macro_type, host *temp_ho
 	case MACRO_TOTALHOSTSERVICES:
 	case MACRO_TOTALHOSTSERVICESOK:
 	case MACRO_TOTALHOSTSERVICESWARNING:
+	case MACRO_TOTALHOSTSERVICESINFO:
 	case MACRO_TOTALHOSTSERVICESUNKNOWN:
 	case MACRO_TOTALHOSTSERVICESCRITICAL:
 
@@ -1867,6 +1890,9 @@ int grab_standard_host_macro_r(icinga_macros *mac, int macro_type, host *temp_ho
 				case STATE_WARNING:
 					total_host_services_warning++;
 					break;
+				case STATE_INFO:
+                                        total_host_services_info++;
+                                        break;
 				case STATE_UNKNOWN:
 					total_host_services_unknown++;
 					break;
@@ -1885,6 +1911,8 @@ int grab_standard_host_macro_r(icinga_macros *mac, int macro_type, host *temp_ho
 			dummy = asprintf(&mac->x[MACRO_TOTALHOSTSERVICESOK], "%d", total_host_services_ok);
 			my_free(mac->x[MACRO_TOTALHOSTSERVICESWARNING]);
 			dummy = asprintf(&mac->x[MACRO_TOTALHOSTSERVICESWARNING], "%d", total_host_services_warning);
+			my_free(mac->x[MACRO_TOTALHOSTSERVICESINFO]);
+                        dummy = asprintf(&mac->x[MACRO_TOTALHOSTSERVICESINFO], "%d", total_host_services_info);
 			my_free(mac->x[MACRO_TOTALHOSTSERVICESUNKNOWN]);
 			dummy = asprintf(&mac->x[MACRO_TOTALHOSTSERVICESUNKNOWN], "%d", total_host_services_unknown);
 			my_free(mac->x[MACRO_TOTALHOSTSERVICESCRITICAL]);
@@ -2107,6 +2135,8 @@ int grab_standard_service_macro_r(icinga_macros *mac, int macro_type, service *t
 			*output = (char *)strdup("OK");
 		else if (temp_service->current_state == STATE_WARNING)
 			*output = (char *)strdup("WARNING");
+		else if (temp_service->current_state == STATE_INFO)
+                        *output = (char *)strdup("INFO");
 		else if (temp_service->current_state == STATE_CRITICAL)
 			*output = (char *)strdup("CRITICAL");
 		else
@@ -2120,6 +2150,8 @@ int grab_standard_service_macro_r(icinga_macros *mac, int macro_type, service *t
 			*output = (char *)strdup("OK");
 		else if (temp_service->last_state == STATE_WARNING)
 			*output = (char *)strdup("WARNING");
+		 else if (temp_service->last_state == STATE_INFO)
+                        *output = (char *)strdup("INFO");
 		else if (temp_service->last_state == STATE_CRITICAL)
 			*output = (char *)strdup("CRITICAL");
 		else
@@ -2157,6 +2189,9 @@ int grab_standard_service_macro_r(icinga_macros *mac, int macro_type, service *t
 	case MACRO_LASTSERVICEWARNING:
 		dummy = asprintf(output, "%lu", (unsigned long)temp_service->last_time_warning);
 		break;
+	case MACRO_LASTSERVICEINFO:
+                dummy = asprintf(output, "%lu", (unsigned long)temp_service->last_time_info);
+                break;
 	case MACRO_LASTSERVICEUNKNOWN:
 		dummy = asprintf(output, "%lu", (unsigned long)temp_service->last_time_unknown);
 		break;
@@ -2818,6 +2853,7 @@ int init_macrox_names(void) {
 	add_macrox_name(SERVICEACKCOMMENT);
 	add_macrox_name(LASTSERVICEOK);
 	add_macrox_name(LASTSERVICEWARNING);
+	add_macrox_name(LASTSERVICEINFO);
 	add_macrox_name(LASTSERVICEUNKNOWN);
 	add_macrox_name(LASTSERVICECRITICAL);
 	add_macrox_name(LASTHOSTUP);
@@ -2852,9 +2888,11 @@ int init_macrox_names(void) {
 	add_macrox_name(TOTALHOSTPROBLEMSUNHANDLED);
 	add_macrox_name(TOTALSERVICESOK);
 	add_macrox_name(TOTALSERVICESWARNING);
+	add_macrox_name(TOTALSERVICESINFO);
 	add_macrox_name(TOTALSERVICESCRITICAL);
 	add_macrox_name(TOTALSERVICESUNKNOWN);
 	add_macrox_name(TOTALSERVICESWARNINGUNHANDLED);
+	add_macrox_name(TOTALSERVICESINFOUNHANDLED);
 	add_macrox_name(TOTALSERVICESCRITICALUNHANDLED);
 	add_macrox_name(TOTALSERVICESUNKNOWNUNHANDLED);
 	add_macrox_name(TOTALSERVICEPROBLEMS);
@@ -2884,6 +2922,7 @@ int init_macrox_names(void) {
 	add_macrox_name(TOTALHOSTSERVICES);
 	add_macrox_name(TOTALHOSTSERVICESOK);
 	add_macrox_name(TOTALHOSTSERVICESWARNING);
+	add_macrox_name(TOTALHOSTSERVICESINFO);
 	add_macrox_name(TOTALHOSTSERVICESUNKNOWN);
 	add_macrox_name(TOTALHOSTSERVICESCRITICAL);
 	add_macrox_name(HOSTGROUPNOTES);
@@ -3104,6 +3143,7 @@ int clear_service_macros_r(icinga_macros *mac) {
 	my_free(mac->x[MACRO_LASTSERVICESTATECHANGE]);
 	my_free(mac->x[MACRO_LASTSERVICEOK]);
 	my_free(mac->x[MACRO_LASTSERVICEWARNING]);
+	my_free(mac->x[MACRO_LASTSERVICEINFO]);
 	my_free(mac->x[MACRO_LASTSERVICEUNKNOWN]);
 	my_free(mac->x[MACRO_LASTSERVICECRITICAL]);
 	my_free(mac->x[MACRO_SERVICEDOWNTIME]);
@@ -3188,6 +3228,7 @@ int clear_host_macros_r(icinga_macros *mac) {
 	my_free(mac->x[MACRO_TOTALHOSTSERVICES]);
 	my_free(mac->x[MACRO_TOTALHOSTSERVICESOK]);
 	my_free(mac->x[MACRO_TOTALHOSTSERVICESWARNING]);
+	my_free(mac->x[MACRO_TOTALHOSTSERVICESINFO]);
 	my_free(mac->x[MACRO_TOTALHOSTSERVICESUNKNOWN]);
 	my_free(mac->x[MACRO_TOTALHOSTSERVICESCRITICAL]);
 	my_free(mac->x[MACRO_HOSTPROBLEMID]);

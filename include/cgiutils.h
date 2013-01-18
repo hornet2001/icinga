@@ -273,6 +273,7 @@ extern "C" {
 #define STATE_WARNING		1
 #define STATE_CRITICAL		2
 #define STATE_UNKNOWN		3       /* changed from -1 on 02/24/2001 */
+#define STATE_INFO		4       /* changed from -1 on 02/24/2001 */
 
 
 /********************* EXTENDED INFO CGI DISPLAY TYPES  *********************/
@@ -326,6 +327,7 @@ extern "C" {
 #define NOTIFICATION_HOST_FLAP		4096
 #define NOTIFICATION_SERVICE_CUSTOM	8192
 #define NOTIFICATION_HOST_CUSTOM	16384
+#define NOTIFICATION_SERVICE_INFO       32768
 
 
 /********************** HOST AND SERVICE ALERT TYPES **********************/
@@ -340,6 +342,8 @@ extern "C" {
 #define HISTORY_HOST_DOWN		64
 #define HISTORY_HOST_UNREACHABLE	128
 #define HISTORY_HOST_RECOVERY		256
+#define HISTORY_SERVICE_INFO            512
+
 
 
 /****************************** SORT TYPES  *******************************/

@@ -1054,6 +1054,8 @@ int xodtemplate_begin_object_definition(char *input, int options, int config_fil
 		/* state based escalation ranges */
 		new_serviceescalation->first_warning_notification = -2;
 		new_serviceescalation->last_warning_notification = -2;
+		new_serviceescalation->first_info_notification = -2;
+                new_serviceescalation->last_info_notification = -2;
 		new_serviceescalation->first_critical_notification = -2;
 		new_serviceescalation->last_critical_notification = -2;
 		new_serviceescalation->first_unknown_notification = -2;
@@ -1107,6 +1109,7 @@ int xodtemplate_begin_object_definition(char *input, int options, int config_fil
 		new_service->flap_detection_enabled = TRUE;
 		new_service->flap_detection_on_ok = TRUE;
 		new_service->flap_detection_on_warning = TRUE;
+		new_service->flap_detection_on_info = TRUE;
 		new_service->flap_detection_on_unknown = TRUE;
 		new_service->flap_detection_on_critical = TRUE;
 		new_service->notifications_enabled = TRUE;
@@ -1840,6 +1843,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_servicedependency->fail_execute_on_unknown = TRUE;
 				else if (!strcmp(temp_ptr, "w") || !strcmp(temp_ptr, "warning"))
 					temp_servicedependency->fail_execute_on_warning = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_servicedependency->fail_execute_on_info = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
 					temp_servicedependency->fail_execute_on_critical = TRUE;
 				else if (!strcmp(temp_ptr, "p") || !strcmp(temp_ptr, "pending"))
@@ -1848,11 +1853,13 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_servicedependency->fail_execute_on_ok = FALSE;
 					temp_servicedependency->fail_execute_on_unknown = FALSE;
 					temp_servicedependency->fail_execute_on_warning = FALSE;
+					temp_servicedependency->fail_execute_on_info = FALSE;
 					temp_servicedependency->fail_execute_on_critical = FALSE;
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_servicedependency->fail_execute_on_ok = TRUE;
 					temp_servicedependency->fail_execute_on_unknown = TRUE;
 					temp_servicedependency->fail_execute_on_warning = TRUE;
+					temp_servicedependency->fail_execute_on_info = TRUE;
 					temp_servicedependency->fail_execute_on_critical = TRUE;
 				} else {
 					logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Invalid execution dependency option '%s' in servicedependency definition.\n", temp_ptr);
@@ -1868,6 +1875,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_servicedependency->fail_notify_on_unknown = TRUE;
 				else if (!strcmp(temp_ptr, "w") || !strcmp(temp_ptr, "warning"))
 					temp_servicedependency->fail_notify_on_warning = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_servicedependency->fail_notify_on_info = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
 					temp_servicedependency->fail_notify_on_critical = TRUE;
 				else if (!strcmp(temp_ptr, "p") || !strcmp(temp_ptr, "pending"))
@@ -1876,12 +1885,14 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_servicedependency->fail_notify_on_ok = FALSE;
 					temp_servicedependency->fail_notify_on_unknown = FALSE;
 					temp_servicedependency->fail_notify_on_warning = FALSE;
+					temp_servicedependency->fail_notify_on_info = FALSE;
 					temp_servicedependency->fail_notify_on_critical = FALSE;
 					temp_servicedependency->fail_notify_on_pending = FALSE;
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_servicedependency->fail_notify_on_ok = TRUE;
 					temp_servicedependency->fail_notify_on_unknown = TRUE;
 					temp_servicedependency->fail_notify_on_warning = TRUE;
+					temp_servicedependency->fail_notify_on_info = TRUE;
 					temp_servicedependency->fail_notify_on_critical = TRUE;
 					temp_servicedependency->fail_notify_on_pending = TRUE;
 				} else {
@@ -2013,6 +2024,12 @@ int xodtemplate_add_object_property(char *input, int options) {
 		} else if (!strcmp(variable, "last_warning_notification")) {
 			temp_serviceescalation->last_warning_notification = atoi(value);
 			temp_serviceescalation->have_last_warning_notification = TRUE;
+		} else if (!strcmp(variable, "first_info_notification")) {
+                        temp_serviceescalation->first_info_notification = atoi(value);
+                        temp_serviceescalation->have_first_info_notification = TRUE;
+                } else if (!strcmp(variable, "last_info_notification")) {
+                        temp_serviceescalation->last_info_notification = atoi(value);
+                        temp_serviceescalation->have_last_info_notification = TRUE;
 		} else if (!strcmp(variable, "first_critical_notification")) {
 			temp_serviceescalation->first_critical_notification = atoi(value);
 			temp_serviceescalation->have_first_critical_notification = TRUE;
@@ -2036,17 +2053,21 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_serviceescalation->escalate_on_warning = TRUE;
 				else if (!strcmp(temp_ptr, "u") || !strcmp(temp_ptr, "unknown"))
 					temp_serviceescalation->escalate_on_unknown = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_serviceescalation->escalate_on_info = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
 					temp_serviceescalation->escalate_on_critical = TRUE;
 				else if (!strcmp(temp_ptr, "r") || !strcmp(temp_ptr, "recovery"))
 					temp_serviceescalation->escalate_on_recovery = TRUE;
 				else if (!strcmp(temp_ptr, "n") || !strcmp(temp_ptr, "none")) {
 					temp_serviceescalation->escalate_on_warning = FALSE;
+					temp_serviceescalation->escalate_on_info = FALSE;
 					temp_serviceescalation->escalate_on_unknown = FALSE;
 					temp_serviceescalation->escalate_on_critical = FALSE;
 					temp_serviceescalation->escalate_on_recovery = FALSE;
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_serviceescalation->escalate_on_warning = TRUE;
+					temp_serviceescalation->escalate_on_info = TRUE;
 					temp_serviceescalation->escalate_on_unknown = TRUE;
 					temp_serviceescalation->escalate_on_critical = TRUE;
 					temp_serviceescalation->escalate_on_recovery = TRUE;
@@ -2215,6 +2236,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_contact->notify_on_service_unknown = TRUE;
 				else if (!strcmp(temp_ptr, "w") || !strcmp(temp_ptr, "warning"))
 					temp_contact->notify_on_service_warning = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_contact->notify_on_service_info = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
 					temp_contact->notify_on_service_critical = TRUE;
 				else if (!strcmp(temp_ptr, "r") || !strcmp(temp_ptr, "recovery"))
@@ -2226,6 +2249,7 @@ int xodtemplate_add_object_property(char *input, int options) {
 				else if (!strcmp(temp_ptr, "n") || !strcmp(temp_ptr, "none")) {
 					temp_contact->notify_on_service_unknown = FALSE;
 					temp_contact->notify_on_service_warning = FALSE;
+					temp_contact->notify_on_service_info = FALSE;
 					temp_contact->notify_on_service_critical = FALSE;
 					temp_contact->notify_on_service_recovery = FALSE;
 					temp_contact->notify_on_service_flapping = FALSE;
@@ -2233,6 +2257,7 @@ int xodtemplate_add_object_property(char *input, int options) {
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_contact->notify_on_service_unknown = TRUE;
 					temp_contact->notify_on_service_warning = TRUE;
+					temp_contact->notify_on_service_info = TRUE;
 					temp_contact->notify_on_service_critical = TRUE;
 					temp_contact->notify_on_service_recovery = TRUE;
 					temp_contact->notify_on_service_flapping = TRUE;
@@ -2845,6 +2870,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 				temp_service->initial_state = STATE_OK;
 			else if (!strcmp(value, "w") || !strcmp(value, "warning"))
 				temp_service->initial_state = STATE_WARNING;
+			else if (!strcmp(value, "i") || !strcmp(value, "info"))
+                                temp_service->initial_state = STATE_INFO;
 			else if (!strcmp(value, "u") || !strcmp(value, "unknown"))
 				temp_service->initial_state = STATE_UNKNOWN;
 			else if (!strcmp(value, "c") || !strcmp(value, "critical"))
@@ -2901,6 +2928,7 @@ int xodtemplate_add_object_property(char *input, int options) {
 			/* user is specifying something, so discard defaults... */
 			temp_service->flap_detection_on_ok = FALSE;
 			temp_service->flap_detection_on_warning = FALSE;
+			temp_service->flap_detection_on_info = FALSE;
 			temp_service->flap_detection_on_unknown = FALSE;
 			temp_service->flap_detection_on_critical = FALSE;
 
@@ -2909,6 +2937,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_service->flap_detection_on_ok = TRUE;
 				else if (!strcmp(temp_ptr, "w") || !strcmp(temp_ptr, "warning"))
 					temp_service->flap_detection_on_warning = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_service->flap_detection_on_info = TRUE;
 				else if (!strcmp(temp_ptr, "u") || !strcmp(temp_ptr, "unknown"))
 					temp_service->flap_detection_on_unknown = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
@@ -2916,11 +2946,13 @@ int xodtemplate_add_object_property(char *input, int options) {
 				else if (!strcmp(temp_ptr, "n") || !strcmp(temp_ptr, "none")) {
 					temp_service->flap_detection_on_ok = FALSE;
 					temp_service->flap_detection_on_warning = FALSE;
+					temp_service->flap_detection_on_info = FALSE;
 					temp_service->flap_detection_on_unknown = FALSE;
 					temp_service->flap_detection_on_critical = FALSE;
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_service->flap_detection_on_ok = TRUE;
 					temp_service->flap_detection_on_warning = TRUE;
+					temp_service->flap_detection_on_info = TRUE;
 					temp_service->flap_detection_on_unknown = TRUE;
 					temp_service->flap_detection_on_critical = TRUE;
 				} else {
@@ -2935,6 +2967,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_service->notify_on_unknown = TRUE;
 				else if (!strcmp(temp_ptr, "w") || !strcmp(temp_ptr, "warning"))
 					temp_service->notify_on_warning = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_service->notify_on_info = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
 					temp_service->notify_on_critical = TRUE;
 				else if (!strcmp(temp_ptr, "r") || !strcmp(temp_ptr, "recovery"))
@@ -2946,6 +2980,7 @@ int xodtemplate_add_object_property(char *input, int options) {
 				else if (!strcmp(temp_ptr, "n") || !strcmp(temp_ptr, "none")) {
 					temp_service->notify_on_unknown = FALSE;
 					temp_service->notify_on_warning = FALSE;
+					temp_service->notify_on_info = FALSE;
 					temp_service->notify_on_critical = FALSE;
 					temp_service->notify_on_recovery = FALSE;
 					temp_service->notify_on_flapping = FALSE;
@@ -2953,6 +2988,7 @@ int xodtemplate_add_object_property(char *input, int options) {
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_service->notify_on_unknown = TRUE;
 					temp_service->notify_on_warning = TRUE;
+					temp_service->notify_on_info = TRUE;
 					temp_service->notify_on_critical = TRUE;
 					temp_service->notify_on_recovery = TRUE;
 					temp_service->notify_on_flapping = TRUE;
@@ -2978,6 +3014,8 @@ int xodtemplate_add_object_property(char *input, int options) {
 					temp_service->stalk_on_ok = TRUE;
 				else if (!strcmp(temp_ptr, "w") || !strcmp(temp_ptr, "warning"))
 					temp_service->stalk_on_warning = TRUE;
+				else if (!strcmp(temp_ptr, "i") || !strcmp(temp_ptr, "info"))
+                                        temp_service->stalk_on_info = TRUE;
 				else if (!strcmp(temp_ptr, "u") || !strcmp(temp_ptr, "unknown"))
 					temp_service->stalk_on_unknown = TRUE;
 				else if (!strcmp(temp_ptr, "c") || !strcmp(temp_ptr, "critical"))
@@ -2985,11 +3023,13 @@ int xodtemplate_add_object_property(char *input, int options) {
 				else if (!strcmp(temp_ptr, "n") || !strcmp(temp_ptr, "none")) {
 					temp_service->stalk_on_ok = FALSE;
 					temp_service->stalk_on_warning = FALSE;
+					temp_service->stalk_on_info = FALSE;
 					temp_service->stalk_on_unknown = FALSE;
 					temp_service->stalk_on_critical = FALSE;
 				} else if (!strcmp(temp_ptr, "a") || !strcmp(temp_ptr, "all")) {
 					temp_service->stalk_on_ok = TRUE;
 					temp_service->stalk_on_warning = TRUE;
+					temp_service->stalk_on_info = TRUE;
 					temp_service->stalk_on_unknown = TRUE;
 					temp_service->stalk_on_critical = TRUE;
 				} else {
@@ -5179,11 +5219,13 @@ int xodtemplate_duplicate_service(xodtemplate_service *temp_service, char *host_
 	new_service->have_high_flap_threshold = temp_service->have_high_flap_threshold;
 	new_service->flap_detection_on_ok = temp_service->flap_detection_on_ok;
 	new_service->flap_detection_on_warning = temp_service->flap_detection_on_warning;
+	new_service->flap_detection_on_info = temp_service->flap_detection_on_info;
 	new_service->flap_detection_on_unknown = temp_service->flap_detection_on_unknown;
 	new_service->flap_detection_on_critical = temp_service->flap_detection_on_critical;
 	new_service->have_flap_detection_options = temp_service->have_flap_detection_options;
 	new_service->notify_on_unknown = temp_service->notify_on_unknown;
 	new_service->notify_on_warning = temp_service->notify_on_warning;
+	new_service->notify_on_info = temp_service->notify_on_info;
 	new_service->notify_on_critical = temp_service->notify_on_critical;
 	new_service->notify_on_recovery = temp_service->notify_on_recovery;
 	new_service->notify_on_flapping = temp_service->notify_on_flapping;
@@ -5198,6 +5240,7 @@ int xodtemplate_duplicate_service(xodtemplate_service *temp_service, char *host_
 	new_service->stalk_on_ok = temp_service->stalk_on_ok;
 	new_service->stalk_on_unknown = temp_service->stalk_on_unknown;
 	new_service->stalk_on_warning = temp_service->stalk_on_warning;
+	new_service->stalk_on_info = temp_service->stalk_on_info;
 	new_service->stalk_on_critical = temp_service->stalk_on_critical;
 	new_service->have_stalking_options = temp_service->have_stalking_options;
 	new_service->process_perf_data = temp_service->process_perf_data;
@@ -5331,6 +5374,7 @@ int xodtemplate_duplicate_hostescalation(xodtemplate_hostescalation *temp_hostes
 		new_escalationcondition->escalate_on_unknown = temp_escalationcondition->escalate_on_unknown;
 		new_escalationcondition->escalate_on_unreachable = temp_escalationcondition->escalate_on_unreachable;
 		new_escalationcondition->escalate_on_warning = temp_escalationcondition->escalate_on_warning;
+		new_escalationcondition->escalate_on_info = temp_escalationcondition->escalate_on_info;
 		new_escalationcondition->connector = temp_escalationcondition->connector;
 
 		/* first escalation condition is head of the condition list */
@@ -5417,6 +5461,8 @@ int xodtemplate_duplicate_serviceescalation(xodtemplate_serviceescalation *temp_
 	/* state based escalation ranges */
 	new_serviceescalation->first_warning_notification = temp_serviceescalation->first_warning_notification;
 	new_serviceescalation->last_warning_notification = temp_serviceescalation->last_warning_notification;
+	new_serviceescalation->first_info_notification = temp_serviceescalation->first_info_notification;
+        new_serviceescalation->last_info_notification = temp_serviceescalation->last_info_notification;
 	new_serviceescalation->first_critical_notification = temp_serviceescalation->first_critical_notification;
 	new_serviceescalation->last_critical_notification = temp_serviceescalation->last_critical_notification;
 	new_serviceescalation->first_unknown_notification = temp_serviceescalation->first_unknown_notification;
@@ -5427,6 +5473,8 @@ int xodtemplate_duplicate_serviceescalation(xodtemplate_serviceescalation *temp_
 	/* state based escalation ranges */
 	new_serviceescalation->have_first_warning_notification = temp_serviceescalation->have_first_warning_notification;
 	new_serviceescalation->have_last_warning_notification = temp_serviceescalation->have_last_warning_notification;
+	new_serviceescalation->have_first_info_notification = temp_serviceescalation->have_first_info_notification;
+        new_serviceescalation->have_last_info_notification = temp_serviceescalation->have_last_info_notification;
 	new_serviceescalation->have_first_critical_notification = temp_serviceescalation->have_first_critical_notification;
 	new_serviceescalation->have_last_critical_notification = temp_serviceescalation->have_last_critical_notification;
 	new_serviceescalation->have_first_unknown_notification = temp_serviceescalation->have_first_unknown_notification;
@@ -5435,6 +5483,7 @@ int xodtemplate_duplicate_serviceescalation(xodtemplate_serviceescalation *temp_
 	new_serviceescalation->notification_interval = temp_serviceescalation->notification_interval;
 	new_serviceescalation->have_notification_interval = temp_serviceescalation->have_notification_interval;
 	new_serviceescalation->escalate_on_warning = temp_serviceescalation->escalate_on_warning;
+	new_serviceescalation->escalate_on_info = temp_serviceescalation->escalate_on_info;
 	new_serviceescalation->escalate_on_unknown = temp_serviceescalation->escalate_on_unknown;
 	new_serviceescalation->escalate_on_critical = temp_serviceescalation->escalate_on_critical;
 	new_serviceescalation->escalate_on_recovery = temp_serviceescalation->escalate_on_recovery;
@@ -5473,6 +5522,7 @@ int xodtemplate_duplicate_serviceescalation(xodtemplate_serviceescalation *temp_
 		new_escalationcondition->escalate_on_unknown = temp_escalationcondition->escalate_on_unknown;
 		new_escalationcondition->escalate_on_unreachable = temp_escalationcondition->escalate_on_unreachable;
 		new_escalationcondition->escalate_on_warning = temp_escalationcondition->escalate_on_warning;
+		new_escalationcondition->escalate_on_info = temp_escalationcondition->escalate_on_info;
 		new_escalationcondition->connector = temp_escalationcondition->connector;
 
 		/* first escalation condition is head of the condition list */
@@ -5638,12 +5688,14 @@ int xodtemplate_duplicate_servicedependency(xodtemplate_servicedependency *temp_
 	new_servicedependency->fail_notify_on_ok = temp_servicedependency->fail_notify_on_ok;
 	new_servicedependency->fail_notify_on_unknown = temp_servicedependency->fail_notify_on_unknown;
 	new_servicedependency->fail_notify_on_warning = temp_servicedependency->fail_notify_on_warning;
+	new_servicedependency->fail_notify_on_info = temp_servicedependency->fail_notify_on_info;
 	new_servicedependency->fail_notify_on_critical = temp_servicedependency->fail_notify_on_critical;
 	new_servicedependency->fail_notify_on_pending = temp_servicedependency->fail_notify_on_pending;
 	new_servicedependency->have_notification_dependency_options = temp_servicedependency->have_notification_dependency_options;
 	new_servicedependency->fail_execute_on_ok = temp_servicedependency->fail_execute_on_ok;
 	new_servicedependency->fail_execute_on_unknown = temp_servicedependency->fail_execute_on_unknown;
 	new_servicedependency->fail_execute_on_warning = temp_servicedependency->fail_execute_on_warning;
+	new_servicedependency->fail_execute_on_info = temp_servicedependency->fail_execute_on_info;
 	new_servicedependency->fail_execute_on_critical = temp_servicedependency->fail_execute_on_critical;
 	new_servicedependency->fail_execute_on_pending = temp_servicedependency->fail_execute_on_pending;
 	new_servicedependency->have_execution_dependency_options = temp_servicedependency->have_execution_dependency_options;
@@ -5873,6 +5925,7 @@ int xodtemplate_inherit_object_properties(void) {
 		if (temp_service->have_notification_options == FALSE) {
 			temp_service->notify_on_unknown = TRUE;
 			temp_service->notify_on_warning = TRUE;
+			temp_service->notify_on_info = TRUE;
 			temp_service->notify_on_critical = TRUE;
 			temp_service->notify_on_recovery = TRUE;
 			temp_service->notify_on_flapping = TRUE;
@@ -5924,6 +5977,7 @@ int xodtemplate_inherit_object_properties(void) {
 		if (temp_serviceescalation->have_escalation_options == FALSE) {
 			temp_serviceescalation->escalate_on_unknown = TRUE;
 			temp_serviceescalation->escalate_on_warning = TRUE;
+			temp_serviceescalation->escalate_on_info = TRUE;
 			temp_serviceescalation->escalate_on_critical = TRUE;
 			temp_serviceescalation->escalate_on_recovery = TRUE;
 			temp_serviceescalation->have_escalation_options = TRUE;
@@ -6527,6 +6581,7 @@ int xodtemplate_resolve_servicedependency(xodtemplate_servicedependency *this_se
 			this_servicedependency->fail_execute_on_ok = template_servicedependency->fail_execute_on_ok;
 			this_servicedependency->fail_execute_on_unknown = template_servicedependency->fail_execute_on_unknown;
 			this_servicedependency->fail_execute_on_warning = template_servicedependency->fail_execute_on_warning;
+			this_servicedependency->fail_execute_on_info = template_servicedependency->fail_execute_on_info;
 			this_servicedependency->fail_execute_on_critical = template_servicedependency->fail_execute_on_critical;
 			this_servicedependency->fail_execute_on_pending = template_servicedependency->fail_execute_on_pending;
 			this_servicedependency->have_execution_dependency_options = TRUE;
@@ -6535,6 +6590,7 @@ int xodtemplate_resolve_servicedependency(xodtemplate_servicedependency *this_se
 			this_servicedependency->fail_notify_on_ok = template_servicedependency->fail_notify_on_ok;
 			this_servicedependency->fail_notify_on_unknown = template_servicedependency->fail_notify_on_unknown;
 			this_servicedependency->fail_notify_on_warning = template_servicedependency->fail_notify_on_warning;
+			this_servicedependency->fail_notify_on_info = template_servicedependency->fail_notify_on_info;
 			this_servicedependency->fail_notify_on_critical = template_servicedependency->fail_notify_on_critical;
 			this_servicedependency->fail_notify_on_pending = template_servicedependency->fail_notify_on_pending;
 			this_servicedependency->have_notification_dependency_options = TRUE;
@@ -6615,6 +6671,16 @@ int xodtemplate_resolve_serviceescalation(xodtemplate_serviceescalation *this_se
 			this_serviceescalation->last_warning_notification = template_serviceescalation->last_warning_notification;
 			this_serviceescalation->have_last_warning_notification = TRUE;
 		}
+		
+ 		if (this_serviceescalation->have_first_info_notification == FALSE && template_serviceescalation->have_first_info_notification == TRUE) {
+                        this_serviceescalation->first_info_notification = template_serviceescalation->first_info_notification;
+                        this_serviceescalation->have_first_info_notification = TRUE;
+                }
+                if (this_serviceescalation->have_last_info_notification == FALSE && template_serviceescalation->have_last_info_notification == TRUE) {
+                        this_serviceescalation->last_info_notification = template_serviceescalation->last_info_notification;
+                        this_serviceescalation->have_last_info_notification = TRUE;
+                }
+
 		if (this_serviceescalation->have_first_critical_notification == FALSE && template_serviceescalation->have_first_critical_notification == TRUE) {
 			this_serviceescalation->first_critical_notification = template_serviceescalation->first_critical_notification;
 			this_serviceescalation->have_first_critical_notification = TRUE;
@@ -6638,6 +6704,7 @@ int xodtemplate_resolve_serviceescalation(xodtemplate_serviceescalation *this_se
 		}
 		if (this_serviceescalation->have_escalation_options == FALSE && template_serviceescalation->have_escalation_options == TRUE) {
 			this_serviceescalation->escalate_on_warning = template_serviceescalation->escalate_on_warning;
+			this_serviceescalation->escalate_on_info = template_serviceescalation->escalate_on_info;
 			this_serviceescalation->escalate_on_unknown = template_serviceescalation->escalate_on_unknown;
 			this_serviceescalation->escalate_on_critical = template_serviceescalation->escalate_on_critical;
 			this_serviceescalation->escalate_on_recovery = template_serviceescalation->escalate_on_recovery;
@@ -6742,6 +6809,7 @@ int xodtemplate_resolve_contact(xodtemplate_contact *this_contact) {
 		if (this_contact->have_service_notification_options == FALSE && template_contact->have_service_notification_options == TRUE) {
 			this_contact->notify_on_service_unknown = template_contact->notify_on_service_unknown;
 			this_contact->notify_on_service_warning = template_contact->notify_on_service_warning;
+			this_contact->notify_on_service_info = template_contact->notify_on_service_info;
 			this_contact->notify_on_service_critical = template_contact->notify_on_service_critical;
 			this_contact->notify_on_service_recovery = template_contact->notify_on_service_recovery;
 			this_contact->notify_on_service_flapping = template_contact->notify_on_service_flapping;
@@ -7223,12 +7291,14 @@ int xodtemplate_resolve_service(xodtemplate_service *this_service) {
 			this_service->flap_detection_on_ok = template_service->flap_detection_on_ok;
 			this_service->flap_detection_on_unknown = template_service->flap_detection_on_unknown;
 			this_service->flap_detection_on_warning = template_service->flap_detection_on_warning;
+			this_service->flap_detection_on_info = template_service->flap_detection_on_info;
 			this_service->flap_detection_on_critical = template_service->flap_detection_on_critical;
 			this_service->have_flap_detection_options = TRUE;
 		}
 		if (this_service->have_notification_options == FALSE && template_service->have_notification_options == TRUE) {
 			this_service->notify_on_unknown = template_service->notify_on_unknown;
 			this_service->notify_on_warning = template_service->notify_on_warning;
+			this_service->notify_on_info = template_service->notify_on_info;
 			this_service->notify_on_critical = template_service->notify_on_critical;
 			this_service->notify_on_recovery = template_service->notify_on_recovery;
 			this_service->notify_on_flapping = template_service->notify_on_flapping;
@@ -7251,6 +7321,7 @@ int xodtemplate_resolve_service(xodtemplate_service *this_service) {
 			this_service->stalk_on_ok = template_service->stalk_on_ok;
 			this_service->stalk_on_unknown = template_service->stalk_on_unknown;
 			this_service->stalk_on_warning = template_service->stalk_on_warning;
+			this_service->stalk_on_info = template_service->stalk_on_info;
 			this_service->stalk_on_critical = template_service->stalk_on_critical;
 			this_service->have_stalking_options = TRUE;
 		}
@@ -9066,7 +9137,7 @@ int xodtemplate_register_servicedependency(xodtemplate_servicedependency *this_s
 	/* add the servicedependency */
 	if (this_servicedependency->have_execution_dependency_options == TRUE) {
 
-		new_servicedependency = add_service_dependency(this_servicedependency->dependent_host_name, this_servicedependency->dependent_service_description, this_servicedependency->host_name, this_servicedependency->service_description, EXECUTION_DEPENDENCY, this_servicedependency->inherits_parent, this_servicedependency->fail_execute_on_ok, this_servicedependency->fail_execute_on_warning, this_servicedependency->fail_execute_on_unknown, this_servicedependency->fail_execute_on_critical, this_servicedependency->fail_execute_on_pending, this_servicedependency->dependency_period);
+		new_servicedependency = add_service_dependency(this_servicedependency->dependent_host_name, this_servicedependency->dependent_service_description, this_servicedependency->host_name, this_servicedependency->service_description, EXECUTION_DEPENDENCY, this_servicedependency->inherits_parent, this_servicedependency->fail_execute_on_ok, this_servicedependency->fail_execute_on_warning, this_servicedependency->fail_execute_on_info, this_servicedependency->fail_execute_on_unknown, this_servicedependency->fail_execute_on_critical, this_servicedependency->fail_execute_on_pending, this_servicedependency->dependency_period);
 
 		/* return with an error if we couldn't add the servicedependency */
 		if (new_servicedependency == NULL) {
@@ -9076,7 +9147,7 @@ int xodtemplate_register_servicedependency(xodtemplate_servicedependency *this_s
 	}
 	if (this_servicedependency->have_notification_dependency_options == TRUE) {
 
-		new_servicedependency = add_service_dependency(this_servicedependency->dependent_host_name, this_servicedependency->dependent_service_description, this_servicedependency->host_name, this_servicedependency->service_description, NOTIFICATION_DEPENDENCY, this_servicedependency->inherits_parent, this_servicedependency->fail_notify_on_ok, this_servicedependency->fail_notify_on_warning, this_servicedependency->fail_notify_on_unknown, this_servicedependency->fail_notify_on_critical, this_servicedependency->fail_notify_on_pending, this_servicedependency->dependency_period);
+		new_servicedependency = add_service_dependency(this_servicedependency->dependent_host_name, this_servicedependency->dependent_service_description, this_servicedependency->host_name, this_servicedependency->service_description, NOTIFICATION_DEPENDENCY, this_servicedependency->inherits_parent, this_servicedependency->fail_notify_on_ok, this_servicedependency->fail_notify_on_warning, this_servicedependency->fail_notify_on_info, this_servicedependency->fail_notify_on_unknown, this_servicedependency->fail_notify_on_critical, this_servicedependency->fail_notify_on_pending, this_servicedependency->dependency_period);
 
 		/* return with an error if we couldn't add the servicedependency */
 		if (new_servicedependency == NULL) {
@@ -9105,13 +9176,14 @@ int xodtemplate_register_serviceescalation(xodtemplate_serviceescalation *this_s
 	/* default options if none specified */
 	if (this_serviceescalation->have_escalation_options == FALSE) {
 		this_serviceescalation->escalate_on_warning = TRUE;
+		this_serviceescalation->escalate_on_info = TRUE;
 		this_serviceescalation->escalate_on_unknown = TRUE;
 		this_serviceescalation->escalate_on_critical = TRUE;
 		this_serviceescalation->escalate_on_recovery = TRUE;
 	}
 
 	/* add the serviceescalation */
-	new_serviceescalation = add_serviceescalation(this_serviceescalation->host_name, this_serviceescalation->service_description, this_serviceescalation->first_notification, this_serviceescalation->last_notification, this_serviceescalation->first_warning_notification, this_serviceescalation->last_warning_notification, this_serviceescalation->first_critical_notification, this_serviceescalation->last_critical_notification, this_serviceescalation->first_unknown_notification, this_serviceescalation->last_unknown_notification, this_serviceescalation->notification_interval, this_serviceescalation->escalation_period, this_serviceescalation->escalate_on_warning, this_serviceescalation->escalate_on_unknown, this_serviceescalation->escalate_on_critical, this_serviceescalation->escalate_on_recovery);
+	new_serviceescalation = add_serviceescalation(this_serviceescalation->host_name, this_serviceescalation->service_description, this_serviceescalation->first_notification, this_serviceescalation->last_notification, this_serviceescalation->first_warning_notification, this_serviceescalation->last_warning_notification, this_serviceescalation->first_info_notification, this_serviceescalation->last_info_notification, this_serviceescalation->first_critical_notification, this_serviceescalation->last_critical_notification, this_serviceescalation->first_unknown_notification, this_serviceescalation->last_unknown_notification, this_serviceescalation->notification_interval, this_serviceescalation->escalation_period, this_serviceescalation->escalate_on_warning, this_serviceescalation->escalate_on_info, this_serviceescalation->escalate_on_unknown, this_serviceescalation->escalate_on_critical, this_serviceescalation->escalate_on_recovery);
 
 	/* return with an error if we couldn't add the serviceescalation */
 	if (new_serviceescalation == NULL) {
@@ -9160,6 +9232,7 @@ int xodtemplate_register_serviceescalation(xodtemplate_serviceescalation *this_s
 			        temp_condition->escalate_on_down,
 			        temp_condition->escalate_on_unreachable,
 			        temp_condition->escalate_on_warning,
+			        temp_condition->escalate_on_info,
 			        temp_condition->escalate_on_unknown,
 			        temp_condition->escalate_on_critical,
 			        temp_condition->escalate_on_ok);
@@ -9190,7 +9263,7 @@ int xodtemplate_register_contact(xodtemplate_contact *this_contact) {
 		return OK;
 
 	/* add the contact */
-	new_contact = add_contact(this_contact->contact_name, this_contact->alias, this_contact->email, this_contact->pager, this_contact->address, this_contact->service_notification_period, this_contact->host_notification_period, this_contact->notify_on_service_recovery, this_contact->notify_on_service_critical, this_contact->notify_on_service_warning, this_contact->notify_on_service_unknown, this_contact->notify_on_service_flapping, this_contact->notify_on_service_downtime, this_contact->notify_on_host_recovery, this_contact->notify_on_host_down, this_contact->notify_on_host_unreachable, this_contact->notify_on_host_flapping, this_contact->notify_on_host_downtime, this_contact->host_notifications_enabled, this_contact->service_notifications_enabled, this_contact->can_submit_commands, this_contact->retain_status_information, this_contact->retain_nonstatus_information);
+	new_contact = add_contact(this_contact->contact_name, this_contact->alias, this_contact->email, this_contact->pager, this_contact->address, this_contact->service_notification_period, this_contact->host_notification_period, this_contact->notify_on_service_recovery, this_contact->notify_on_service_critical, this_contact->notify_on_service_warning, this_contact->notify_on_service_info, this_contact->notify_on_service_unknown, this_contact->notify_on_service_flapping, this_contact->notify_on_service_downtime, this_contact->notify_on_host_recovery, this_contact->notify_on_host_down, this_contact->notify_on_host_unreachable, this_contact->notify_on_host_flapping, this_contact->notify_on_host_downtime, this_contact->host_notifications_enabled, this_contact->service_notifications_enabled, this_contact->can_submit_commands, this_contact->retain_status_information, this_contact->retain_nonstatus_information);
 
 	/* return with an error if we couldn't add the contact */
 	if (new_contact == NULL) {
@@ -9336,7 +9409,7 @@ int xodtemplate_register_service(xodtemplate_service *this_service) {
 		return OK;
 
 	/* add the service */
-	new_service = add_service(this_service->host_name, this_service->service_description, this_service->display_name, this_service->check_period, this_service->initial_state, this_service->max_check_attempts, this_service->parallelize_check, this_service->passive_checks_enabled, this_service->check_interval, this_service->retry_interval, this_service->notification_interval, this_service->first_notification_delay, this_service->notification_period, this_service->notify_on_recovery, this_service->notify_on_unknown, this_service->notify_on_warning, this_service->notify_on_critical, this_service->notify_on_flapping, this_service->notify_on_downtime, this_service->notifications_enabled, this_service->is_volatile, this_service->event_handler, this_service->event_handler_enabled, this_service->check_command, this_service->active_checks_enabled, this_service->flap_detection_enabled, this_service->low_flap_threshold, this_service->high_flap_threshold, this_service->flap_detection_on_ok, this_service->flap_detection_on_warning, this_service->flap_detection_on_unknown, this_service->flap_detection_on_critical, this_service->stalk_on_ok, this_service->stalk_on_warning, this_service->stalk_on_unknown, this_service->stalk_on_critical, this_service->process_perf_data, this_service->failure_prediction_enabled, this_service->failure_prediction_options, this_service->check_freshness, this_service->freshness_threshold, this_service->notes, this_service->notes_url, this_service->action_url, this_service->icon_image, this_service->icon_image_alt, this_service->retain_status_information, this_service->retain_nonstatus_information, this_service->obsess_over_service);
+	new_service = add_service(this_service->host_name, this_service->service_description, this_service->display_name, this_service->check_period, this_service->initial_state, this_service->max_check_attempts, this_service->parallelize_check, this_service->passive_checks_enabled, this_service->check_interval, this_service->retry_interval, this_service->notification_interval, this_service->first_notification_delay, this_service->notification_period, this_service->notify_on_recovery, this_service->notify_on_unknown, this_service->notify_on_warning, this_service->notify_on_info, this_service->notify_on_critical, this_service->notify_on_flapping, this_service->notify_on_downtime, this_service->notifications_enabled, this_service->is_volatile, this_service->event_handler, this_service->event_handler_enabled, this_service->check_command, this_service->active_checks_enabled, this_service->flap_detection_enabled, this_service->low_flap_threshold, this_service->high_flap_threshold, this_service->flap_detection_on_ok, this_service->flap_detection_on_warning, this_service->flap_detection_on_info, this_service->flap_detection_on_unknown, this_service->flap_detection_on_critical, this_service->stalk_on_ok, this_service->stalk_on_warning, this_service->stalk_on_info, this_service->stalk_on_unknown, this_service->stalk_on_critical, this_service->process_perf_data, this_service->failure_prediction_enabled, this_service->failure_prediction_options, this_service->check_freshness, this_service->freshness_threshold, this_service->notes, this_service->notes_url, this_service->action_url, this_service->icon_image, this_service->icon_image_alt, this_service->retain_status_information, this_service->retain_nonstatus_information, this_service->obsess_over_service);
 
 	/* return with an error if we couldn't add the service */
 	if (new_service == NULL) {
@@ -9494,6 +9567,7 @@ int xodtemplate_register_hostescalation(xodtemplate_hostescalation *this_hostesc
 			        temp_condition->escalate_on_down,
 			        temp_condition->escalate_on_unreachable,
 			        temp_condition->escalate_on_warning,
+			        temp_condition->escalate_on_info,
 			        temp_condition->escalate_on_unknown,
 			        temp_condition->escalate_on_critical,
 			        temp_condition->escalate_on_ok);
@@ -10680,6 +10754,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 		x = 0;
 		if (temp_contact->notify_on_service_warning == TRUE)
 			fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+		if (temp_contact->notify_on_service_info == TRUE)
+                        fprintf(fp, "%sw", (x++ > 0) ? "," : "");
 		if (temp_contact->notify_on_service_unknown == TRUE)
 			fprintf(fp, "%su", (x++ > 0) ? "," : "");
 		if (temp_contact->notify_on_service_critical == TRUE)
@@ -10891,6 +10967,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 		fprintf(fp, "\tinitial_state\t");
 		if (temp_service->initial_state == STATE_WARNING)
 			fprintf(fp, "w\n");
+		else if (temp_service->initial_state == STATE_INFO)
+                        fprintf(fp, "i\n");
 		else if (temp_service->initial_state == STATE_UNKNOWN)
 			fprintf(fp, "u\n");
 		else if (temp_service->initial_state == STATE_CRITICAL)
@@ -10915,6 +10993,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 			fprintf(fp, "%so", (x++ > 0) ? "," : "");
 		if (temp_service->flap_detection_on_warning == TRUE)
 			fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+		if (temp_service->flap_detection_on_info == TRUE)
+                        fprintf(fp, "%si", (x++ > 0) ? "," : "");
 		if (temp_service->flap_detection_on_unknown == TRUE)
 			fprintf(fp, "%su", (x++ > 0) ? "," : "");
 		if (temp_service->flap_detection_on_critical == TRUE)
@@ -10930,6 +11010,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 			fprintf(fp, "%su", (x++ > 0) ? "," : "");
 		if (temp_service->notify_on_warning == TRUE)
 			fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+		if (temp_service->notify_on_info == TRUE)
+                        fprintf(fp, "%si", (x++ > 0) ? "," : "");
 		if (temp_service->notify_on_critical == TRUE)
 			fprintf(fp, "%sc", (x++ > 0) ? "," : "");
 		if (temp_service->notify_on_recovery == TRUE)
@@ -10952,6 +11034,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 			fprintf(fp, "%su", (x++ > 0) ? "," : "");
 		if (temp_service->stalk_on_warning == TRUE)
 			fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+		if (temp_service->stalk_on_info == TRUE)
+                        fprintf(fp, "%si", (x++ > 0) ? "," : "");
 		if (temp_service->stalk_on_critical == TRUE)
 			fprintf(fp, "%sc", (x++ > 0) ? "," : "");
 		if (x == 0)
@@ -11008,6 +11092,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 				fprintf(fp, "%su", (x++ > 0) ? "," : "");
 			if (temp_servicedependency->fail_notify_on_warning == TRUE)
 				fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+			if (temp_servicedependency->fail_notify_on_info == TRUE)
+                                fprintf(fp, "%si", (x++ > 0) ? "," : "");
 			if (temp_servicedependency->fail_notify_on_critical == TRUE)
 				fprintf(fp, "%sc", (x++ > 0) ? "," : "");
 			if (temp_servicedependency->fail_notify_on_pending == TRUE)
@@ -11025,6 +11111,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 				fprintf(fp, "%su", (x++ > 0) ? "," : "");
 			if (temp_servicedependency->fail_execute_on_warning == TRUE)
 				fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+			if (temp_servicedependency->fail_execute_on_info == TRUE)
+                                fprintf(fp, "%si", (x++ > 0) ? "," : "");
 			if (temp_servicedependency->fail_execute_on_critical == TRUE)
 				fprintf(fp, "%sc", (x++ > 0) ? "," : "");
 			if (temp_servicedependency->fail_execute_on_pending == TRUE)
@@ -11052,6 +11140,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 		/* state based escalation ranges */
 		fprintf(fp, "\tfirst_warning_notification\t%d\n", temp_serviceescalation->first_warning_notification);
 		fprintf(fp, "\tlast_warning_notification\t%d\n", temp_serviceescalation->last_warning_notification);
+		fprintf(fp, "\tfirst_info_notification\t%d\n", temp_serviceescalation->first_info_notification);
+                fprintf(fp, "\tlast_info_notification\t%d\n", temp_serviceescalation->last_info_notification);
 		fprintf(fp, "\tfirst_critical_notification\t%d\n", temp_serviceescalation->first_critical_notification);
 		fprintf(fp, "\tlast_critical_notification\t%d\n", temp_serviceescalation->last_critical_notification);
 		fprintf(fp, "\tfirst_unknown_notification\t%d\n", temp_serviceescalation->first_unknown_notification);
@@ -11065,6 +11155,8 @@ int xodtemplate_cache_objects(char *cache_file) {
 			x = 0;
 			if (temp_serviceescalation->escalate_on_warning == TRUE)
 				fprintf(fp, "%sw", (x++ > 0) ? "," : "");
+			if (temp_serviceescalation->escalate_on_info == TRUE)
+                                fprintf(fp, "%si", (x++ > 0) ? "," : "");
 			if (temp_serviceescalation->escalate_on_unknown == TRUE)
 				fprintf(fp, "%su", (x++ > 0) ? "," : "");
 			if (temp_serviceescalation->escalate_on_critical == TRUE)
@@ -14123,6 +14215,7 @@ int xodtemplate_create_escalation_condition(char *value, xodtemplate_escalation_
 		new_condition->escalate_on_down = FALSE;
 		new_condition->escalate_on_unreachable = FALSE;
 		new_condition->escalate_on_warning = FALSE;
+		new_condition->escalate_on_info = FALSE;
 		new_condition->escalate_on_unknown = FALSE;
 		new_condition->escalate_on_critical = FALSE;
 		new_condition->escalate_on_ok = FALSE;
@@ -14156,6 +14249,8 @@ int xodtemplate_create_escalation_condition(char *value, xodtemplate_escalation_
 				new_condition->escalate_on_down = TRUE;
 			else if (!strcmp(temp_ptr, "w"))
 				new_condition->escalate_on_warning = TRUE;
+			else if (!strcmp(temp_ptr, "i"))
+                                new_condition->escalate_on_info = TRUE;
 			else if (!strcmp(temp_ptr, "c"))
 				new_condition->escalate_on_critical = TRUE;
 			else if (!strcmp(temp_ptr, "o"))

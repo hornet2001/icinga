@@ -166,6 +166,7 @@ typedef struct xodtemplate_contact_struct{
 	char      *service_notification_commands;
 	int       notify_on_service_unknown;
 	int       notify_on_service_warning;
+	int       notify_on_service_info;
 	int       notify_on_service_critical;
 	int       notify_on_service_recovery;
 	int       notify_on_service_flapping;
@@ -398,10 +399,12 @@ typedef struct xodtemplate_service_struct{
 	int        flap_detection_enabled;
 	int        flap_detection_on_ok;
 	int        flap_detection_on_warning;
+	int        flap_detection_on_info;
 	int        flap_detection_on_unknown;
 	int        flap_detection_on_critical;
 	int        notify_on_unknown;
 	int        notify_on_warning;
+	int        notify_on_info;
 	int        notify_on_critical;
 	int        notify_on_recovery;
 	int        notify_on_flapping;
@@ -415,6 +418,7 @@ typedef struct xodtemplate_service_struct{
 	int        stalk_on_ok;
 	int        stalk_on_unknown;
 	int        stalk_on_warning;
+	int        stalk_on_info;
 	int        stalk_on_critical;
 	int        process_perf_data;
 	int        failure_prediction_enabled;
@@ -532,6 +536,7 @@ typedef struct xodtemplate_servicegroup_struct{
         int       escalate_on_down;
         int       escalate_on_unreachable;
         int       escalate_on_warning;
+        int       escalate_on_info;
         int       escalate_on_unknown;
         int       escalate_on_critical;
         int       escalate_on_ok;
@@ -559,11 +564,13 @@ typedef struct xodtemplate_servicedependency_struct{
 	int        fail_notify_on_ok;
 	int        fail_notify_on_unknown;
 	int        fail_notify_on_warning;
+	int        fail_notify_on_info;
 	int        fail_notify_on_critical;
 	int        fail_notify_on_pending;
 	int        fail_execute_on_ok;
 	int        fail_execute_on_unknown;
 	int        fail_execute_on_warning;
+	int        fail_execute_on_info;
 	int        fail_execute_on_critical;
 	int        fail_execute_on_pending;
 
@@ -604,6 +611,7 @@ typedef struct xodtemplate_serviceescalation_struct{
 	double    notification_interval;
 	char      *escalation_period;
 	int       escalate_on_warning;
+	int       escalate_on_info;
 	int       escalate_on_unknown;
 	int       escalate_on_critical;
 	int       escalate_on_recovery;
@@ -634,12 +642,16 @@ typedef struct xodtemplate_serviceescalation_struct{
 	 */
 	int       first_warning_notification;
 	int       last_warning_notification;
+	int       first_info_notification;
+        int       last_info_notification;
 	int       first_critical_notification;
 	int       last_critical_notification;
 	int       first_unknown_notification;
 	int       last_unknown_notification;
 	int       have_first_warning_notification;
 	int       have_last_warning_notification;
+	int       have_first_info_notification;
+        int       have_last_info_notification;
 	int       have_first_critical_notification;
 	int       have_last_critical_notification;
 	int       have_first_unknown_notification;

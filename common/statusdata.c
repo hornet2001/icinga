@@ -411,6 +411,9 @@ int add_service_status(servicestatus *new_svcstatus) {
 		case 3:
 			new_svcstatus->status = SERVICE_UNKNOWN;
 			break;
+		case 4:
+                        new_svcstatus->status = SERVICE_INFO;
+                        break;
 		default:
 			new_svcstatus->status = SERVICE_OK;
 			break;

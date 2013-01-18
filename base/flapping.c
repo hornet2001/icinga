@@ -97,6 +97,8 @@ void check_for_service_flapping(service *svc, int update, int allow_flapstart_no
 			update_history = FALSE;
 		if (svc->current_state == STATE_WARNING && svc->flap_detection_on_warning == FALSE)
 			update_history = FALSE;
+		if (svc->current_state == STATE_INFO && svc->flap_detection_on_info == FALSE)
+                        update_history = FALSE;
 		if (svc->current_state == STATE_UNKNOWN && svc->flap_detection_on_unknown == FALSE)
 			update_history = FALSE;
 		if (svc->current_state == STATE_CRITICAL && svc->flap_detection_on_critical == FALSE)

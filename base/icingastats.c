@@ -125,6 +125,7 @@ int passive_service_checks = 0;
 int active_service_checks = 0;
 int services_ok = 0;
 int services_warning = 0;
+int services_info = 0;
 int services_unknown = 0;
 int services_critical = 0;
 int services_flapping = 0;
@@ -358,10 +359,11 @@ int main(int argc, char **argv) {
 		printf(" NUMSERVICES          total number of services.\n");
 		printf(" NUMHOSTS             total number of hosts.\n");
 		printf(" NUMSVCOK             number of services OK.\n");
+		printf(" NUMSVCINFO           number of services INFO.\n");
 		printf(" NUMSVCWARN           number of services WARNING.\n");
 		printf(" NUMSVCUNKN           number of services UNKNOWN.\n");
 		printf(" NUMSVCCRIT           number of services CRITICAL.\n");
-		printf(" NUMSVCPROB           number of service problems (WARNING, UNKNOWN or CRITIAL).\n");
+		printf(" NUMSVCPROB           number of service problems (WARNING, INFO, UNKNOWN or CRITIAL).\n");
 		printf(" NUMSVCCHECKED        number of services that have been checked since start.\n");
 		printf(" NUMSVCSCHEDULED      number of services that are currently scheduled to be checked.\n");
 		printf(" NUMSVCFLAPPING       number of services that are currently flapping.\n");
@@ -758,12 +760,14 @@ int display_mrtg_values(void) {
 			printf("%d%s", services_ok, mrtg_delimiter);
 		else if (!strcmp(temp_ptr, "NUMSVCWARN"))
 			printf("%d%s", services_warning, mrtg_delimiter);
+		else if (!strcmp(temp_ptr, "NUMSVCINFO"))
+                        printf("%d%s", services_info, mrtg_delimiter);
 		else if (!strcmp(temp_ptr, "NUMSVCUNKN"))
 			printf("%d%s", services_unknown, mrtg_delimiter);
 		else if (!strcmp(temp_ptr, "NUMSVCCRIT"))
 			printf("%d%s", services_critical, mrtg_delimiter);
 		else if (!strcmp(temp_ptr, "NUMSVCPROB"))
-			printf("%d%s", services_warning + services_unknown + services_critical, mrtg_delimiter);
+			printf("%d%s", services_warning + services_info + services_unknown + services_critical, mrtg_delimiter);
 
 		/* misc service info */
 		else if (!strcmp(temp_ptr, "NUMSVCCHECKED"))
@@ -849,7 +853,7 @@ int display_stats(void) {
 	printf("Passive Service Latency:                %.3f / %.3f / %.3f sec\n", min_passive_service_latency, max_passive_service_latency, average_passive_service_latency);
 	printf("Passive Service State Change:           %.3f / %.3f / %.3f %%\n", min_passive_service_state_change, max_passive_service_state_change, average_passive_service_state_change);
 	printf("Passive Services Last 1/5/15/60 min:    %d / %d / %d / %d\n", passive_services_checked_last_1min, passive_services_checked_last_5min, passive_services_checked_last_15min, passive_services_checked_last_1hour);
-	printf("Services Ok/Warn/Unk/Crit:              %d / %d / %d / %d\n", services_ok, services_warning, services_unknown, services_critical);
+	printf("Services Ok/Info/Warn/Unk/Crit:         %d / %d / %d / %d / %d\n", services_ok, services_info, services_warning, services_unknown, services_critical);
 	printf("Services Flapping:                      %d\n", services_flapping);
 	printf("Services In Downtime:                   %d\n", services_in_downtime);
 	printf("\n");
@@ -1209,6 +1213,9 @@ int read_status_file(void) {
 				case STATE_WARNING:
 					services_warning++;
 					break;
+				case STATE_INFO:
+                                        services_info++;
+                                        break;
 				case STATE_UNKNOWN:
 					services_unknown++;
 					break;
@@ -1654,6 +1661,8 @@ int read_icingastats_file(void) {
 			services_ok = atoi(val);
 		else if (!strcmp(var, "services_warning"))
 			services_warning = atoi(val);
+		else if (!strcmp(var, "services_info"))
+                        services_info = atoi(val);
 		else if (!strcmp(var, "services_critical"))
 			services_critical = atoi(val);
 		else if (!strcmp(var, "services_unknown"))

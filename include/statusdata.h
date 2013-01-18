@@ -134,6 +134,7 @@ typedef struct servicestatus_struct{
 	int	last_hard_state;
 	time_t  last_time_ok;
 	time_t  last_time_warning;
+	time_t  last_time_info;
 	time_t  last_time_unknown;
 	time_t  last_time_critical;
 	int     state_type;
@@ -166,6 +167,7 @@ typedef struct servicestatus_struct{
          * invisible, in order to stay compatible with neb modules
          */
 	int     current_warning_notification_number;
+	int     current_info_notification_number;
 	int     current_critical_notification_number;
 	int     current_unknown_notification_number;
         }servicestatus;

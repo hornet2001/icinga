@@ -2182,7 +2182,7 @@ int process_passive_service_check(time_t check_time, char *host_name, char *svc_
 	new_pcr->return_code = return_code;
 
 	/* make sure the return code is within bounds */
-	if (new_pcr->return_code < 0 || new_pcr->return_code > 3)
+	if (new_pcr->return_code < 0 || new_pcr->return_code > 4)
 		new_pcr->return_code = STATE_UNKNOWN;
 
 	new_pcr->check_time = check_time;
@@ -2318,7 +2318,7 @@ int process_passive_host_check(time_t check_time, char *host_name, int return_co
 	new_pcr->return_code = return_code;
 
 	/* make sure the return code is within bounds */
-	if (new_pcr->return_code < 0 || new_pcr->return_code > 3)
+	if (new_pcr->return_code < 0 || new_pcr->return_code > 4)
 		new_pcr->return_code = STATE_UNKNOWN;
 
 	new_pcr->check_time = check_time;

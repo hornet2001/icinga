@@ -103,10 +103,13 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 		svc->current_notification_number++;
 
 		/* state based escalation ranges */
-		/* also increment the warning/critical/unknown state counter */
+		/* also increment the warning/info/critical/unknown state counter */
 		if (svc->current_state == STATE_WARNING) {
 			svc->current_warning_notification_number++;
 		}
+		if (svc->current_state == STATE_INFO) {
+                        svc->current_info_notification_number++;
+                }
 		if (svc->current_state == STATE_CRITICAL) {
 			svc->current_critical_notification_number++;
 		}
@@ -121,6 +124,7 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 
 	/* state based escalation ranges */
 	log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Current warning notification number: %d (%s)\n", svc->current_warning_notification_number, (increment_notification_number == TRUE) ? "incremented" : "unchanged");
+	log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Current info notification number: %d (%s)\n", svc->current_info_notification_number, (increment_notification_number == TRUE) ? "incremented" : "unchanged");
 	log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Current critical notification number: %d (%s)\n", svc->current_critical_notification_number, (increment_notification_number == TRUE) ? "incremented" : "unchanged");
 	log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Current unknown notification number: %d (%s)\n", svc->current_unknown_notification_number, (increment_notification_number == TRUE) ? "incremented" : "unchanged");
 
@@ -314,6 +318,8 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 					svc->notified_on_unknown = TRUE;
 				else if (svc->current_state == STATE_WARNING)
 					svc->notified_on_warning = TRUE;
+				else if (svc->current_state == STATE_INFO)
+                                        svc->notified_on_info = TRUE;
 				else if (svc->current_state == STATE_CRITICAL)
 					svc->notified_on_critical = TRUE;
 			}
@@ -328,6 +334,9 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 				if (svc->current_state == STATE_WARNING) {
 					svc->current_warning_notification_number--;
 				}
+				if (svc->current_state == STATE_INFO) {
+                                        svc->current_info_notification_number--;
+                                }
 				if (svc->current_state == STATE_CRITICAL) {
 					svc->current_critical_notification_number--;
 				}
@@ -354,6 +363,9 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 			if (svc->current_state == STATE_WARNING) {
 				svc->current_warning_notification_number--;
 			}
+			if (svc->current_state == STATE_INFO) {
+                                svc->current_info_notification_number--;
+                        }
 			if (svc->current_state == STATE_CRITICAL) {
 				svc->current_critical_notification_number--;
 			}
@@ -578,6 +590,10 @@ int check_service_notification_viability(service *svc, int type, int options) {
 		log_debug_info(DEBUGL_NOTIFICATIONS, 1, "We shouldn't notify about WARNING states for this service.\n");
 		return ERROR;
 	}
+	if (svc->current_state == STATE_INFO && svc->notify_on_info == FALSE) {
+                log_debug_info(DEBUGL_NOTIFICATIONS, 1, "We shouldn't notify about INFO states for this service.\n");
+                return ERROR;
+        }
 	if (svc->current_state == STATE_CRITICAL && svc->notify_on_critical == FALSE) {
 		log_debug_info(DEBUGL_NOTIFICATIONS, 1, "We shouldn't notify about CRITICAL states for this service.\n");
 		return ERROR;
@@ -587,7 +603,7 @@ int check_service_notification_viability(service *svc, int type, int options) {
 			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "We shouldn't notify about RECOVERY states for this service.\n");
 			return ERROR;
 		}
-		if (!(svc->notified_on_unknown == TRUE || svc->notified_on_warning == TRUE || svc->notified_on_critical == TRUE)) {
+		if (!(svc->notified_on_unknown == TRUE || svc->notified_on_warning == TRUE || svc->notified_on_info == TRUE || svc->notified_on_critical == TRUE)) {
 			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "We shouldn't notify about this recovery.\n");
 			return ERROR;
 		}
@@ -743,6 +759,10 @@ int check_contact_service_notification_viability(contact *cntct, service *svc, i
 		log_debug_info(DEBUGL_NOTIFICATIONS, 2, "We shouldn't notify this contact about WARNING service states.\n");
 		return ERROR;
 	}
+	if (svc->current_state == STATE_INFO && cntct->notify_on_service_info == FALSE) {
+                log_debug_info(DEBUGL_NOTIFICATIONS, 2, "We shouldn't notify this contact about INFO service states.\n");
+                return ERROR;
+        }
 
 	if (svc->current_state == STATE_CRITICAL && cntct->notify_on_service_critical == FALSE) {
 		log_debug_info(DEBUGL_NOTIFICATIONS, 2, "We shouldn't notify this contact about CRITICAL service states.\n");
@@ -756,7 +776,7 @@ int check_contact_service_notification_viability(contact *cntct, service *svc, i
 			return ERROR;
 		}
 
-		if (!((svc->notified_on_unknown == TRUE && cntct->notify_on_service_unknown == TRUE) || (svc->notified_on_warning == TRUE && cntct->notify_on_service_warning == TRUE) || (svc->notified_on_critical == TRUE && cntct->notify_on_service_critical == TRUE))) {
+		if (!((svc->notified_on_unknown == TRUE && cntct->notify_on_service_unknown == TRUE) || (svc->notified_on_warning == TRUE && cntct->notify_on_service_warning == TRUE) || (svc->notified_on_info == TRUE && cntct->notify_on_service_info == TRUE) || (svc->notified_on_critical == TRUE && cntct->notify_on_service_critical == TRUE))) {
 			log_debug_info(DEBUGL_NOTIFICATIONS, 2, "We shouldn't notify about this recovery.\n");
 			return ERROR;
 		}
@@ -869,7 +889,8 @@ int notify_contact_of_service(icinga_macros *mac, contact *cntct, service *svc, 
 				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMECANCELLED ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			default:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;$SERVICESTATE$;%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				//dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;$SERVICESTATE$;%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+			        dummy =	asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;$SERVICESTATE$;%s;$SERVICEOUTPUT$;CUSTOM_H3G_NOTIFICATION||$TIMET$||$CONTACTNAME$||$HOSTNAME$||$SERVICEDESC$||$SERVICESTATEID$||$HOSTSTATEID$||$_SERVICETYPE$||$HOSTOUTPUT$||$SERVICEOUTPUT$||$LONGSERVICEOUTPUT$||\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			}
 
@@ -932,6 +953,7 @@ int is_valid_escalation_for_service_notification(service *svc, serviceescalation
 	int notification_number = 0;
 	/* state based escalation ranges */
 	int warning_notification_number = 0;
+	int info_notification_number = 0;
 	int critical_notification_number = 0;
 	int unknown_notification_number = 0;
 	int widematch = 1;
@@ -953,6 +975,7 @@ int is_valid_escalation_for_service_notification(service *svc, serviceescalation
 	/* state based escalation ranges */
 	/* These will not be incremented in the case of a recovery, so use the current values regardless of the state */
 	warning_notification_number = svc->current_warning_notification_number;
+	info_notification_number = svc->current_info_notification_number;
 	critical_notification_number = svc->current_critical_notification_number;
 	unknown_notification_number = svc->current_unknown_notification_number;
 
@@ -982,6 +1005,10 @@ int is_valid_escalation_for_service_notification(service *svc, serviceescalation
 				if (se->first_warning_notification == -2 || se->first_warning_notification > warning_notification_number)
 					return FALSE;
 				break;
+			case STATE_INFO:
+                                if (se->first_info_notification == -2 || se->first_info_notification > info_notification_number)
+                                        return FALSE;
+                                break;
 			case STATE_CRITICAL:
 				if (se->first_critical_notification == -2 || se->first_critical_notification > critical_notification_number)
 					return FALSE;
@@ -1013,6 +1040,10 @@ int is_valid_escalation_for_service_notification(service *svc, serviceescalation
 				if (se->last_warning_notification == -2 || ((se->last_warning_notification != 0) && (se->last_warning_notification < warning_notification_number)))
 					return FALSE;
 				break;
+			case STATE_INFO:
+                                if (se->last_info_notification == -2 || ((se->last_info_notification != 0) && (se->last_info_notification < info_notification_number)))
+                                        return FALSE;
+                                break;
 			case STATE_CRITICAL:
 				if (se->last_critical_notification == -2 || ((se->last_critical_notification != 0) && (se->last_critical_notification < critical_notification_number)))
 					return FALSE;
@@ -1034,6 +1065,8 @@ int is_valid_escalation_for_service_notification(service *svc, serviceescalation
 		return FALSE;
 	else if (svc->current_state == STATE_WARNING && se->escalate_on_warning == FALSE)
 		return FALSE;
+	else if (svc->current_state == STATE_INFO && se->escalate_on_info == FALSE)
+                return FALSE;
 	else if (svc->current_state == STATE_UNKNOWN && se->escalate_on_unknown == FALSE)
 		return FALSE;
 	else if (svc->current_state == STATE_CRITICAL && se->escalate_on_critical == FALSE)
@@ -1070,6 +1103,8 @@ int check_escalation_condition(escalation_condition *cond) {
 					result = FALSE;
 				else if (svc->current_state == STATE_WARNING && cnd->escalate_on_warning == FALSE)
 					result = FALSE;
+				else if (svc->current_state == STATE_INFO && cnd->escalate_on_info == FALSE)
+                                        result = FALSE;
 				else if (svc->current_state == STATE_UNKNOWN && cnd->escalate_on_unknown == FALSE)
 					result = FALSE;
 				else if (svc->current_state == STATE_CRITICAL && cnd->escalate_on_critical == FALSE)

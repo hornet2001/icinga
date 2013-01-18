@@ -78,6 +78,8 @@ static const char *service_state_name(int state) {
                 return "OK";
         case STATE_WARNING:
                 return "WARNING";
+	case STATE_INFO:
+                return "INFO";
         case STATE_CRITICAL:
                 return "CRITICAL";
         }
@@ -330,6 +332,8 @@ int log_service_event(service *svc) {
 		log_options = NSLOG_SERVICE_UNKNOWN;
 	else if (svc->current_state == STATE_WARNING)
 		log_options = NSLOG_SERVICE_WARNING;
+	else if (svc->current_state == STATE_INFO)
+                log_options = NSLOG_SERVICE_INFO;
 	else if (svc->current_state == STATE_CRITICAL)
 		log_options = NSLOG_SERVICE_CRITICAL;
 	else

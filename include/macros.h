@@ -42,7 +42,7 @@
 
 #define MAX_USER_MACROS				256	/* maximum number of $USERx$ macros */
 
-#define MACRO_X_COUNT				154	/* size of macro_x[] array */
+#define MACRO_X_COUNT				158	/* size of macro_x[] array */
 
 struct icinga_macros {
 	char *x[MACRO_X_COUNT];
@@ -233,6 +233,11 @@ typedef struct nagios_macros nagios_macros;
 #define MACRO_LASTSERVICESTATE                  151
 #define MACRO_LASTSERVICESTATEID                152
 #define MACRO_HOSTADDRESS6			153
+#define MACRO_LASTSERVICEINFO                   154
+#define MACRO_TOTALSERVICESINFO                 155
+#define MACRO_TOTALSERVICESINFOUNHANDLED        156
+#define MACRO_TOTALHOSTSERVICESINFO             157
+
 
 
 /************* MACRO CLEANING OPTIONS *****************/

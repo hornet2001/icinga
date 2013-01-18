@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
 	char input[8096];
 	int notify_recovery;
 	int notify_warning;
+	int notify_info;
 	int notify_critical;
 	int notify_down;
 	int notify_unreachable;
@@ -197,10 +198,11 @@ int main(int argc, char **argv) {
 			notify_critical = atoi(temp_ptr);
 			temp_ptr = my_strsep(&temp_ptr2, ";");
 			notify_warning = atoi(temp_ptr);
+			notify_info = atoi(temp_ptr);
 
 			option = 0;
 			printf("\tservice_notification_options\t");
-			if (notify_recovery == 1 || notify_critical == 1 || notify_warning == 1) {
+			if (notify_recovery == 1 || notify_critical == 1 || notify_info == 1 || notify_warning == 1) {
 				if (notify_warning == 1) {
 					printf("w,u");
 					option = 1;
@@ -211,6 +213,12 @@ int main(int argc, char **argv) {
 					printf("c");
 					option = 1;
 				}
+				if (notify_info == 1) {
+                                        if (option == 1)
+                                                printf(",");
+                                        printf("i");
+                                        option = 1;
+                                }
 				if (notify_recovery == 1) {
 					if (option == 1)
 						printf(",");
@@ -478,10 +486,11 @@ int main(int argc, char **argv) {
 			notify_critical = atoi(temp_ptr);
 			temp_ptr = my_strsep(&temp_ptr2, ";");
 			notify_warning = atoi(temp_ptr);
+			notify_info = atoi(temp_ptr);
 
 			option = 0;
 			printf("\tnotification_options\t\t");
-			if (notify_recovery == 1 || notify_critical == 1 || notify_warning == 1) {
+			if (notify_recovery == 1 || notify_critical == 1 || notify_info == 1 || notify_warning == 1) {
 				if (notify_warning == 1) {
 					printf("w,u");
 					option = 1;
@@ -492,6 +501,12 @@ int main(int argc, char **argv) {
 					printf("c");
 					option = 1;
 				}
+				if (notify_info == 1) {
+                                        if (option == 1)
+                                                printf(",");
+                                        printf("i");
+                                        option = 1;
+                                }
 				if (notify_recovery == 1) {
 					if (option == 1)
 						printf(",");

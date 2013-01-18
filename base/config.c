@@ -824,6 +824,8 @@ int read_main_config_file(char *main_config_file) {
 				service_check_timeout_state = STATE_OK;
 			else if (!strcmp(value, "w"))
 				service_check_timeout_state = STATE_WARNING;
+			else if (!strcmp(value, "i"))
+                                service_check_timeout_state = STATE_INFO;
 			else if (!strcmp(value, "c"))
 				service_check_timeout_state = STATE_CRITICAL;
 			else if (!strcmp(value, "u"))
@@ -1999,7 +2001,7 @@ int pre_flight_object_check(int *w, int *e) {
 		temp_service->check_command_ptr = temp_command;
 
 		/* check for sane recovery options */
-		if (temp_service->notify_on_recovery == TRUE && temp_service->notify_on_warning == FALSE && temp_service->notify_on_critical == FALSE) {
+		if (temp_service->notify_on_recovery == TRUE && temp_service->notify_on_warning == FALSE && temp_service->notify_on_critical == FALSE && temp_service->notify_on_info == FALSE) {
 			logit(NSLOG_VERIFICATION_WARNING, TRUE, "Warning: Recovery notification option in service '%s' for host '%s' doesn't make any sense - specify warning and/or critical options as well", temp_service->description, temp_service->host_name);
 			warnings++;
 		}
@@ -2440,7 +2442,7 @@ int pre_flight_object_check(int *w, int *e) {
 		}
 
 		/* check for sane service recovery options */
-		if (temp_contact->notify_on_service_recovery == TRUE && temp_contact->notify_on_service_critical == FALSE && temp_contact->notify_on_service_warning == FALSE) {
+		if (temp_contact->notify_on_service_recovery == TRUE && temp_contact->notify_on_service_critical == FALSE && temp_contact->notify_on_service_warning == FALSE && temp_contact->notify_on_service_info == FALSE ) {
 			logit(NSLOG_VERIFICATION_WARNING, TRUE, "Warning: Service recovery notification option for contact '%s' doesn't make any sense - specify critical and/or warning options as well", temp_contact->name);
 			warnings++;
 		}

@@ -1286,7 +1286,7 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 
 
 /* add a new contact to the list in memory */
-contact *add_contact(char *name, char *alias, char *email, char *pager, char **addresses, char *svc_notification_period, char *host_notification_period, int notify_service_ok, int notify_service_critical, int notify_service_warning, int notify_service_unknown, int notify_service_flapping, int notify_service_downtime, int notify_host_up, int notify_host_down, int notify_host_unreachable, int notify_host_flapping, int notify_host_downtime, int host_notifications_enabled, int service_notifications_enabled, int can_submit_commands, int retain_status_information, int retain_nonstatus_information) {
+contact *add_contact(char *name, char *alias, char *email, char *pager, char **addresses, char *svc_notification_period, char *host_notification_period, int notify_service_ok, int notify_service_critical, int notify_service_warning, int notify_service_info, int notify_service_unknown, int notify_service_flapping, int notify_service_downtime, int notify_host_up, int notify_host_down, int notify_host_unreachable, int notify_host_flapping, int notify_host_downtime, int host_notifications_enabled, int service_notifications_enabled, int can_submit_commands, int retain_status_information, int retain_nonstatus_information) {
 	contact *new_contact = NULL;
 	int x = 0;
 	int result = OK;
@@ -1334,6 +1334,7 @@ contact *add_contact(char *name, char *alias, char *email, char *pager, char **a
 	new_contact->notify_on_service_recovery = (notify_service_ok > 0) ? TRUE : FALSE;
 	new_contact->notify_on_service_critical = (notify_service_critical > 0) ? TRUE : FALSE;
 	new_contact->notify_on_service_warning = (notify_service_warning > 0) ? TRUE : FALSE;
+	new_contact->notify_on_service_info = (notify_service_info > 0) ? TRUE : FALSE;
 	new_contact->notify_on_service_unknown = (notify_service_unknown > 0) ? TRUE : FALSE;
 	new_contact->notify_on_service_flapping = (notify_service_flapping > 0) ? TRUE : FALSE;
 	new_contact->notify_on_service_downtime = (notify_service_downtime > 0) ? TRUE : FALSE;
@@ -1580,7 +1581,7 @@ contactsmember *add_contact_to_contactgroup(contactgroup *grp, char *contact_nam
 
 
 /* add a new service to the list in memory */
-service *add_service(char *host_name, char *description, char *display_name, char *check_period, int initial_state, int max_attempts, int parallelize, int accept_passive_checks, double check_interval, double retry_interval, double notification_interval, double first_notification_delay, char *notification_period, int notify_recovery, int notify_unknown, int notify_warning, int notify_critical, int notify_flapping, int notify_downtime, int notifications_enabled, int is_volatile, char *event_handler, int event_handler_enabled, char *check_command, int checks_enabled, int flap_detection_enabled, double low_flap_threshold, double high_flap_threshold, int flap_detection_on_ok, int flap_detection_on_warning, int flap_detection_on_unknown, int flap_detection_on_critical, int stalk_on_ok, int stalk_on_warning, int stalk_on_unknown, int stalk_on_critical, int process_perfdata, int failure_prediction_enabled, char *failure_prediction_options, int check_freshness, int freshness_threshold, char *notes, char *notes_url, char *action_url, char *icon_image, char *icon_image_alt, int retain_status_information, int retain_nonstatus_information, int obsess_over_service) {
+service *add_service(char *host_name, char *description, char *display_name, char *check_period, int initial_state, int max_attempts, int parallelize, int accept_passive_checks, double check_interval, double retry_interval, double notification_interval, double first_notification_delay, char *notification_period, int notify_recovery, int notify_unknown, int notify_warning, int notify_info, int notify_critical, int notify_flapping, int notify_downtime, int notifications_enabled, int is_volatile, char *event_handler, int event_handler_enabled, char *check_command, int checks_enabled, int flap_detection_enabled, double low_flap_threshold, double high_flap_threshold, int flap_detection_on_ok, int flap_detection_on_warning, int flap_detection_on_info,  int flap_detection_on_unknown, int flap_detection_on_critical, int stalk_on_ok, int stalk_on_warning, int stalk_on_info, int stalk_on_unknown, int stalk_on_critical, int process_perfdata, int failure_prediction_enabled, char *failure_prediction_options, int check_freshness, int freshness_threshold, char *notes, char *notes_url, char *action_url, char *icon_image, char *icon_image_alt, int retain_status_information, int retain_nonstatus_information, int obsess_over_service) {
 	service *new_service = NULL;
 	int result = OK;
 #ifdef NSCORE
@@ -1662,6 +1663,7 @@ service *add_service(char *host_name, char *description, char *display_name, cha
 	new_service->first_notification_delay = first_notification_delay;
 	new_service->notify_on_unknown = (notify_unknown > 0) ? TRUE : FALSE;
 	new_service->notify_on_warning = (notify_warning > 0) ? TRUE : FALSE;
+	new_service->notify_on_info = (notify_info > 0) ? TRUE : FALSE;
 	new_service->notify_on_critical = (notify_critical > 0) ? TRUE : FALSE;
 	new_service->notify_on_recovery = (notify_recovery > 0) ? TRUE : FALSE;
 	new_service->notify_on_flapping = (notify_flapping > 0) ? TRUE : FALSE;
@@ -1672,10 +1674,12 @@ service *add_service(char *host_name, char *description, char *display_name, cha
 	new_service->high_flap_threshold = high_flap_threshold;
 	new_service->flap_detection_on_ok = (flap_detection_on_ok > 0) ? TRUE : FALSE;
 	new_service->flap_detection_on_warning = (flap_detection_on_warning > 0) ? TRUE : FALSE;
+	new_service->flap_detection_on_info = (flap_detection_on_info > 0) ? TRUE : FALSE;
 	new_service->flap_detection_on_unknown = (flap_detection_on_unknown > 0) ? TRUE : FALSE;
 	new_service->flap_detection_on_critical = (flap_detection_on_critical > 0) ? TRUE : FALSE;
 	new_service->stalk_on_ok = (stalk_on_ok > 0) ? TRUE : FALSE;
 	new_service->stalk_on_warning = (stalk_on_warning > 0) ? TRUE : FALSE;
+	new_service->stalk_on_info = (stalk_on_info > 0) ? TRUE : FALSE;
 	new_service->stalk_on_unknown = (stalk_on_unknown > 0) ? TRUE : FALSE;
 	new_service->stalk_on_critical = (stalk_on_critical > 0) ? TRUE : FALSE;
 	new_service->process_performance_data = (process_perfdata > 0) ? TRUE : FALSE;
@@ -1715,17 +1719,20 @@ service *add_service(char *host_name, char *description, char *display_name, cha
 	new_service->last_hard_state_change = (time_t)0;
 	new_service->last_time_ok = (time_t)0;
 	new_service->last_time_warning = (time_t)0;
+	new_service->last_time_info = (time_t)0;
 	new_service->last_time_unknown = (time_t)0;
 	new_service->last_time_critical = (time_t)0;
 	new_service->has_been_checked = FALSE;
 	new_service->is_being_freshened = FALSE;
 	new_service->notified_on_unknown = FALSE;
 	new_service->notified_on_warning = FALSE;
+	new_service->notified_on_info = FALSE;
 	new_service->notified_on_critical = FALSE;
 	new_service->current_notification_number = 0;
 
 	/* state based escalation ranges */
 	new_service->current_warning_notification_number = 0;
+	new_service->current_info_notification_number = 0;
 	new_service->current_critical_notification_number = 0;
 	new_service->current_unknown_notification_number = 0;
 
@@ -1907,7 +1914,7 @@ command *add_command(char *name, char *value) {
 
 
 /* add a new service escalation to the list in memory */
-serviceescalation *add_serviceescalation(char *host_name, char *description, int first_notification, int last_notification, int first_warning_notification, int last_warning_notification, int first_critical_notification, int last_critical_notification, int first_unknown_notification, int last_unknown_notification, double notification_interval, char *escalation_period, int escalate_on_warning, int escalate_on_unknown, int escalate_on_critical, int escalate_on_recovery) {
+serviceescalation *add_serviceescalation(char *host_name, char *description, int first_notification, int last_notification, int first_warning_notification, int last_warning_notification, int first_info_notification, int last_info_notification, int first_critical_notification, int last_critical_notification, int first_unknown_notification, int last_unknown_notification, double notification_interval, char *escalation_period, int escalate_on_warning, int escalate_on_info, int escalate_on_unknown, int escalate_on_critical, int escalate_on_recovery) {
 	serviceescalation *new_serviceescalation = NULL;
 	int result = OK;
 
@@ -1940,6 +1947,8 @@ serviceescalation *add_serviceescalation(char *host_name, char *description, int
 	/* state based escalation ranges */
 	new_serviceescalation->first_warning_notification = first_warning_notification;
 	new_serviceescalation->last_warning_notification = last_warning_notification;
+	new_serviceescalation->first_info_notification = first_info_notification;
+        new_serviceescalation->last_info_notification = last_info_notification;
 	new_serviceescalation->first_critical_notification = first_critical_notification;
 	new_serviceescalation->last_critical_notification = last_critical_notification;
 	new_serviceescalation->first_unknown_notification = first_unknown_notification;
@@ -1948,6 +1957,7 @@ serviceescalation *add_serviceescalation(char *host_name, char *description, int
 	new_serviceescalation->notification_interval = (notification_interval <= 0) ? 0 : notification_interval;
 	new_serviceescalation->escalate_on_recovery = (escalate_on_recovery > 0) ? TRUE : FALSE;
 	new_serviceescalation->escalate_on_warning = (escalate_on_warning > 0) ? TRUE : FALSE;
+	new_serviceescalation->escalate_on_info = (escalate_on_info > 0) ? TRUE : FALSE;
 	new_serviceescalation->escalate_on_unknown = (escalate_on_unknown > 0) ? TRUE : FALSE;
 	new_serviceescalation->escalate_on_critical = (escalate_on_critical > 0) ? TRUE : FALSE;
 
@@ -2032,7 +2042,7 @@ contactsmember *add_contact_to_serviceescalation(serviceescalation *se, char *co
 
 
 /* adds a service dependency definition */
-servicedependency *add_service_dependency(char *dependent_host_name, char *dependent_service_description, char *host_name, char *service_description, int dependency_type, int inherits_parent, int fail_on_ok, int fail_on_warning, int fail_on_unknown, int fail_on_critical, int fail_on_pending, char *dependency_period) {
+servicedependency *add_service_dependency(char *dependent_host_name, char *dependent_service_description, char *host_name, char *service_description, int dependency_type, int inherits_parent, int fail_on_ok, int fail_on_warning, int fail_on_info, int fail_on_unknown, int fail_on_critical, int fail_on_pending, char *dependency_period) {
 	servicedependency *new_servicedependency = NULL;
 	int result = OK;
 
@@ -2068,6 +2078,7 @@ servicedependency *add_service_dependency(char *dependent_host_name, char *depen
 	new_servicedependency->inherits_parent = (inherits_parent > 0) ? TRUE : FALSE;
 	new_servicedependency->fail_on_ok = (fail_on_ok == 1) ? TRUE : FALSE;
 	new_servicedependency->fail_on_warning = (fail_on_warning == 1) ? TRUE : FALSE;
+	new_servicedependency->fail_on_info = (fail_on_info == 1) ? TRUE : FALSE;
 	new_servicedependency->fail_on_unknown = (fail_on_unknown == 1) ? TRUE : FALSE;
 	new_servicedependency->fail_on_critical = (fail_on_critical == 1) ? TRUE : FALSE;
 	new_servicedependency->fail_on_pending = (fail_on_pending == 1) ? TRUE : FALSE;
@@ -2260,7 +2271,7 @@ hostescalation *add_hostescalation(char *host_name, int first_notification, int 
 }
 
 /* add a condition to a (host or service) escalation in memory */
-escalation_condition *add_host_service_escalation_condition(hostescalation *my_hostescalation, serviceescalation *my_serviceescalation, escalation_condition *last_condition, char *host_name, char *service_description, int connector, int escalate_on_down, int escalate_on_unreachable, int escalate_on_warning, int escalate_on_unknown, int escalate_on_critical, int escalate_on_ok) {
+escalation_condition *add_host_service_escalation_condition(hostescalation *my_hostescalation, serviceescalation *my_serviceescalation, escalation_condition *last_condition, char *host_name, char *service_description, int connector, int escalate_on_down, int escalate_on_unreachable, int escalate_on_warning, int escalate_on_info, int escalate_on_unknown, int escalate_on_critical, int escalate_on_ok) {
 	escalation_condition *new_escalation_condition = NULL;
 	int result = OK;
 
@@ -2287,6 +2298,7 @@ escalation_condition *add_host_service_escalation_condition(hostescalation *my_h
 	new_escalation_condition->service_description = NULL;
 	new_escalation_condition->next = NULL;
 	new_escalation_condition->escalate_on_warning = FALSE;
+	new_escalation_condition->escalate_on_info = FALSE;
 	new_escalation_condition->escalate_on_unknown = FALSE;
 	new_escalation_condition->escalate_on_critical = FALSE;
 	new_escalation_condition->escalate_on_ok = FALSE;
@@ -2302,6 +2314,7 @@ escalation_condition *add_host_service_escalation_condition(hostescalation *my_h
 			result = ERROR;
 
 		new_escalation_condition->escalate_on_warning = (escalate_on_warning > 0) ? TRUE : FALSE;
+		new_escalation_condition->escalate_on_info = (escalate_on_info > 0) ? TRUE : FALSE;
 		new_escalation_condition->escalate_on_unknown = (escalate_on_unknown > 0) ? TRUE : FALSE;
 		new_escalation_condition->escalate_on_critical = (escalate_on_critical > 0) ? TRUE : FALSE;
 		new_escalation_condition->escalate_on_ok = (escalate_on_ok > 0) ? TRUE : FALSE;
@@ -2342,13 +2355,13 @@ escalation_condition *add_host_service_escalation_condition(hostescalation *my_h
 }
 
 /* add a condition to a host escalation in memory */
-escalation_condition *add_hostescalation_condition(hostescalation *my_hostescalation, escalation_condition *last_condition, char *host_name, char *service_description, int connector, int escalate_on_down, int escalate_on_unreachable, int escalate_on_warning, int escalate_on_unknown, int escalate_on_critical, int escalate_on_ok) {
-	return add_host_service_escalation_condition(my_hostescalation, NULL, last_condition, host_name, service_description, connector, escalate_on_down, escalate_on_unreachable, escalate_on_warning, escalate_on_unknown, escalate_on_critical, escalate_on_ok);
+escalation_condition *add_hostescalation_condition(hostescalation *my_hostescalation, escalation_condition *last_condition, char *host_name, char *service_description, int connector, int escalate_on_down, int escalate_on_unreachable, int escalate_on_warning, int escalate_on_info, int escalate_on_unknown, int escalate_on_critical, int escalate_on_ok) {
+	return add_host_service_escalation_condition(my_hostescalation, NULL, last_condition, host_name, service_description, connector, escalate_on_down, escalate_on_unreachable, escalate_on_warning, escalate_on_info, escalate_on_unknown, escalate_on_critical, escalate_on_ok);
 }
 
 /* add a condition to a service escalation in memory */
-escalation_condition *add_serviceescalation_condition(serviceescalation *my_serviceescalation, escalation_condition *last_condition, char *host_name, char *service_description, int connector, int escalate_on_down, int escalate_on_unreachable, int escalate_on_warning, int escalate_on_unknown, int escalate_on_critical, int escalate_on_ok) {
-	return add_host_service_escalation_condition(NULL, my_serviceescalation, last_condition, host_name, service_description, connector, escalate_on_down, escalate_on_unreachable, escalate_on_warning, escalate_on_unknown, escalate_on_critical, escalate_on_ok);
+escalation_condition *add_serviceescalation_condition(serviceescalation *my_serviceescalation, escalation_condition *last_condition, char *host_name, char *service_description, int connector, int escalate_on_down, int escalate_on_unreachable, int escalate_on_warning,  int escalate_on_info, int escalate_on_unknown, int escalate_on_critical, int escalate_on_ok) {
+	return add_host_service_escalation_condition(NULL, my_serviceescalation, last_condition, host_name, service_description, connector, escalate_on_down, escalate_on_unreachable, escalate_on_warning, escalate_on_info, escalate_on_unknown, escalate_on_critical, escalate_on_ok);
 }
 
 /* adds a contact group to a host escalation */

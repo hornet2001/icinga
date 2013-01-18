@@ -587,6 +587,7 @@ int xsddefault_save_status_data(void) {
 		fprintf(fp, "\tlast_state_change=%lu\n", temp_service->last_state_change);
 		fprintf(fp, "\tlast_hard_state_change=%lu\n", temp_service->last_hard_state_change);
 		fprintf(fp, "\tlast_time_ok=%lu\n", temp_service->last_time_ok);
+		fprintf(fp, "\tlast_time_info=%lu\n", temp_service->last_time_info);
 		fprintf(fp, "\tlast_time_warning=%lu\n", temp_service->last_time_warning);
 		fprintf(fp, "\tlast_time_unknown=%lu\n", temp_service->last_time_unknown);
 		fprintf(fp, "\tlast_time_critical=%lu\n", temp_service->last_time_critical);
@@ -599,6 +600,7 @@ int xsddefault_save_status_data(void) {
 		fprintf(fp, "\tcurrent_notification_number=%d\n", temp_service->current_notification_number);
 		/* state based escalation ranges */
 		fprintf(fp, "\tcurrent_warning_notification_number=%d\n", temp_service->current_warning_notification_number);
+		fprintf(fp, "\tcurrent_info_notification_number=%d\n", temp_service->current_info_notification_number);
 		fprintf(fp, "\tcurrent_critical_notification_number=%d\n", temp_service->current_critical_notification_number);
 		fprintf(fp, "\tcurrent_unknown_notification_number=%d\n", temp_service->current_unknown_notification_number);
 
@@ -1212,6 +1214,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 						temp_servicestatus->last_time_ok = strtoul(val, NULL, 10);
 					else if (!strcmp(var, "last_time_warning"))
 						temp_servicestatus->last_time_warning = strtoul(val, NULL, 10);
+					else if (!strcmp(var, "last_time_info"))
+                                                temp_servicestatus->last_time_info = strtoul(val, NULL, 10);
 					else if (!strcmp(var, "last_time_unknown"))
 						temp_servicestatus->last_time_unknown = strtoul(val, NULL, 10);
 					else if (!strcmp(var, "last_time_critical"))
@@ -1235,6 +1239,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 					/* state based escalation ranges */
 					else if (!strcmp(var, "current_warning_notification_number"))
 						temp_servicestatus->current_warning_notification_number = atoi(val);
+					else if (!strcmp(var, "current_info_notification_number"))
+                                                temp_servicestatus->current_info_notification_number = atoi(val);
 					else if (!strcmp(var, "current_critical_notification_number"))
 						temp_servicestatus->current_critical_notification_number = atoi(val);
 					else if (!strcmp(var, "current_unknown_notification_number"))

@@ -208,6 +208,7 @@ struct contact_struct{
 	commandsmember *service_notification_commands;	
 	int     notify_on_service_unknown;
 	int     notify_on_service_warning;
+	int     notify_on_service_info;
 	int     notify_on_service_critical;
 	int     notify_on_service_recovery;
 	int     notify_on_service_flapping;
@@ -447,12 +448,14 @@ struct service_struct{
 	double  first_notification_delay;
 	int     notify_on_unknown;
 	int	notify_on_warning;
+	int	notify_on_info;
 	int	notify_on_critical;
 	int	notify_on_recovery;
 	int     notify_on_flapping;
 	int     notify_on_downtime;
 	int     stalk_on_ok;
 	int     stalk_on_warning;
+	int     stalk_on_info;
 	int     stalk_on_unknown;
 	int     stalk_on_critical;
 	int     is_volatile;
@@ -463,6 +466,7 @@ struct service_struct{
 	double  high_flap_threshold;
 	int     flap_detection_on_ok;
 	int     flap_detection_on_warning;
+	int     flap_detection_on_info;
 	int     flap_detection_on_unknown;
 	int     flap_detection_on_critical;
 	int     process_performance_data;
@@ -511,12 +515,14 @@ struct service_struct{
 	time_t	last_hard_state_change;
 	time_t  last_time_ok;
 	time_t  last_time_warning;
+	time_t  last_time_info;
 	time_t  last_time_unknown;
 	time_t  last_time_critical;
 	int     has_been_checked;
 	int     is_being_freshened;
 	int     notified_on_unknown;
 	int     notified_on_warning;
+	int     notified_on_info;
 	int     notified_on_critical;
 	int     current_notification_number;
 	unsigned long current_notification_id;
@@ -554,6 +560,7 @@ struct service_struct{
 	time_t	acknowledgement_end_time;
 #ifdef NSCORE
 	int     current_warning_notification_number;
+	int     current_info_notification_number;
 	int     current_critical_notification_number;
 	int     current_unknown_notification_number;
 #endif
@@ -581,6 +588,7 @@ typedef struct escalation_condition_struct{
         int       escalate_on_down;
         int       escalate_on_unreachable;
         int       escalate_on_warning;
+        int       escalate_on_info;
         int       escalate_on_unknown;
         int       escalate_on_critical;
         int       escalate_on_ok;
@@ -598,6 +606,7 @@ typedef struct serviceescalation_struct{
 	char    *escalation_period;
 	int     escalate_on_recovery;
 	int     escalate_on_warning;
+	int     escalate_on_info;
 	int     escalate_on_unknown;
 	int     escalate_on_critical;
         escalation_condition *condition;
@@ -615,6 +624,8 @@ typedef struct serviceescalation_struct{
          */
 	int     first_warning_notification;
 	int     last_warning_notification;
+	int     first_info_notification;
+        int     last_info_notification;
 	int     first_critical_notification;
 	int     last_critical_notification;
 	int     first_unknown_notification;
@@ -633,6 +644,7 @@ typedef struct servicedependency_struct{
 	int     inherits_parent;
 	int     fail_on_ok;
 	int     fail_on_warning;
+	int     fail_on_info;
 	int     fail_on_unknown;
 	int     fail_on_critical;
 	int     fail_on_pending;
@@ -733,7 +745,7 @@ int read_object_config_data(char *,int,int,int);        /* reads all external co
 
 
 /**** Object Creation Functions ****/
-contact *add_contact(char *,char *,char *,char *,char **,char *,char *,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int);	/* adds a contact definition */
+contact *add_contact(char *,char *,char *,char *,char **,char *,char *,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int);	/* adds a contact definition */
 commandsmember *add_service_notification_command_to_contact(contact *,char *);				/* adds a service notification command to a contact definition */
 commandsmember *add_host_notification_command_to_contact(contact *,char *);				/* adds a host notification command to a contact definition */
 customvariablesmember *add_custom_variable_to_contact(contact *,char *,char *);                         /* adds a custom variable to a service definition */
@@ -755,14 +767,14 @@ servicesmember *add_service_to_servicegroup(servicegroup *,char *,char *);      
 contactgroup *add_contactgroup(char *,char *);								/* adds a contactgroup definition */
 contactsmember *add_contact_to_contactgroup(contactgroup *,char *);					/* adds a contact to a contact group definition */
 command *add_command(char *,char *);									/* adds a command definition */
-service *add_service(char *,char *,char *,char *,int,int,int,int,double,double,double,double,char *,int,int,int,int,int,int,int,int,char *,int,char *,int,int,double,double,int,int,int,int,int,int,int,int,int,int,char *,int,int,char *,char *,char *,char *,char *,int,int,int);	/* adds a service definition */
+service *add_service(char *,char *,char *,char *,int,int,int,int,double,double,double,double,char *,int,int,int,int,int,int,int,int,int,char *,int,char *,int,int,double,double,int,int,int,int,int,int,int,int,int,int,int,int,char *,int,int,char *,char *,char *,char *,char *,int,int,int);	/* adds a service definition */
 contactgroupsmember *add_contactgroup_to_service(service *,char *);					/* adds a contact group to a service definition */
 contactsmember *add_contact_to_service(service *,char *);                                               /* adds a contact to a host definition */
-serviceescalation *add_serviceescalation(char *,char *,int,int,int,int,int,int,int,int,double,char *,int,int,int,int);  /* adds a service escalation definition */
+serviceescalation *add_serviceescalation(char *,char *,int,int,int,int,int,int,int,int,int,int,double,char *,int,int,int,int,int);  /* adds a service escalation definition */
 contactgroupsmember *add_contactgroup_to_serviceescalation(serviceescalation *,char *);                 /* adds a contact group to a service escalation definition */
 contactsmember *add_contact_to_serviceescalation(serviceescalation *,char *);                           /* adds a contact to a service escalation definition */
 customvariablesmember *add_custom_variable_to_service(service *,char *,char *);                         /* adds a custom variable to a service definition */
-servicedependency *add_service_dependency(char *,char *,char *,char *,int,int,int,int,int,int,int,char *);     /* adds a service dependency definition */
+servicedependency *add_service_dependency(char *,char *,char *,char *,int,int,int,int,int,int,int,int,char *);     /* adds a service dependency definition */
 hostdependency *add_host_dependency(char *,char *,int,int,int,int,int,int,char *);                             /* adds a host dependency definition */
 hostescalation *add_hostescalation(char *,int,int,int,int,int,int,double,char *,int,int,int);                           /* adds a host escalation definition */
 contactsmember *add_contact_to_hostescalation(hostescalation *,char *);                                 /* adds a contact to a host escalation definition */
@@ -774,8 +786,8 @@ customvariablesmember *add_custom_variable_to_object(customvariablesmember **,ch
 
 servicesmember *add_service_link_to_host(host *,service *);
 
-escalation_condition *add_serviceescalation_condition(serviceescalation *, escalation_condition *, char *, char *, int, int, int, int, int, int, int); /* add a condition to a service escalation in memory */
-escalation_condition *add_hostescalation_condition(hostescalation *, escalation_condition *, char *, char *, int, int, int, int, int, int, int); /* add a condition to a host escalation in memory */
+escalation_condition *add_serviceescalation_condition(serviceescalation *, escalation_condition *, char *, char *, int, int,int, int, int, int, int, int); /* add a condition to a service escalation in memory */
+escalation_condition *add_hostescalation_condition(hostescalation *, escalation_condition *, char *, char *, int,int, int, int, int, int, int, int); /* add a condition to a host escalation in memory */
 
 module *add_module(char *,char *,char *,char *);							/* adds a module definition */
 int add_module_objects_to_neb(void);									/* add modules to neb, backwards compatible */

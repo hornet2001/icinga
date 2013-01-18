@@ -1156,7 +1156,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 	}
 
 	/* make sure the return code is within bounds */
-	else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 3) {
+	else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 4) {
 
 		if (queued_check_result->return_code == 126) {
 			dummy = asprintf(&temp_service->plugin_output, "The command defined for service %s is not an executable\n", queued_check_result->service_description);
@@ -1204,6 +1204,9 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 	case STATE_WARNING:
 		temp_service->last_time_warning = temp_service->last_check;
 		break;
+	case STATE_INFO:
+                temp_service->last_time_info = temp_service->last_check;
+                break;
 	case STATE_UNKNOWN:
 		temp_service->last_time_unknown = temp_service->last_check;
 		break;
@@ -1447,6 +1450,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 		temp_service->current_notification_number = 0;
 		/* state based escalation ranges */
 		temp_service->current_warning_notification_number = 0;
+		temp_service->current_info_notification_number = 0;
 		temp_service->current_critical_notification_number = 0;
 		temp_service->current_unknown_notification_number = 0;
 
@@ -1454,6 +1458,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 		temp_service->acknowledgement_type = ACKNOWLEDGEMENT_NONE;
 		temp_service->notified_on_unknown = FALSE;
 		temp_service->notified_on_warning = FALSE;
+		temp_service->notified_on_info = FALSE;
 		temp_service->notified_on_critical = FALSE;
 		temp_service->no_more_notifications = FALSE;
 
@@ -1693,6 +1698,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 			/* state based escalation ranges */
 			if (hard_state_change == TRUE) {
 				temp_service->current_warning_notification_number = 0;
+				temp_service->current_info_notification_number = 0;
 				temp_service->current_critical_notification_number = 0;
 				temp_service->current_unknown_notification_number = 0;
 			}
@@ -1781,6 +1787,18 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 			/* should we run event handlers ? */
 			if (stalking_event_handlers_for_services == TRUE)
 				handle_service_event(temp_service);
+
+                        /* should we notify all contacts ? */
+                        if (stalking_notifications_for_services == TRUE)
+                                service_notification(temp_service, NOTIFICATION_STALKING, NULL, NULL, NOTIFICATION_OPTION_NONE);
+		 /* INFO */
+                } else if ((temp_service->current_state == STATE_INFO && temp_service->stalk_on_info == TRUE)) {
+
+                        log_service_event(temp_service);
+
+                        /* should we run event handlers ? */
+                        if (stalking_event_handlers_for_services == TRUE)
+                                handle_service_event(temp_service);
 
                         /* should we notify all contacts ? */
                         if (stalking_notifications_for_services == TRUE)
@@ -2098,6 +2116,8 @@ int check_service_dependencies(service *svc, int dependency_type) {
 			return DEPENDENCIES_FAILED;
 		if (state == STATE_WARNING && temp_dependency->fail_on_warning == TRUE)
 			return DEPENDENCIES_FAILED;
+		if (state == STATE_INFO && temp_dependency->fail_on_info == TRUE)
+                        return DEPENDENCIES_FAILED;
 		if (state == STATE_UNKNOWN && temp_dependency->fail_on_unknown == TRUE)
 			return DEPENDENCIES_FAILED;
 		if (state == STATE_CRITICAL && temp_dependency->fail_on_critical == TRUE)
@@ -3595,7 +3615,7 @@ int handle_async_host_check_result_3x(host *temp_host, check_result *queued_chec
 		}
 
 		/* make sure the return code is within bounds */
-		else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 3) {
+		else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 4) {
 
 			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Return code of %d for check of host '%s' was out of bounds.%s\n", queued_check_result->return_code, temp_host->name, (queued_check_result->return_code == 126 || queued_check_result->return_code == 127) ? " Make sure the plugin you're trying to run actually exists." : "");
 
